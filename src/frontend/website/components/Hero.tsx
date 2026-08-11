@@ -133,7 +133,7 @@ export const Hero: React.FC<HeroProps> = ({ onViewLeaderboard }) => {
 
               {/* Large Display Mode Button */}
               <button
-                onClick={() => window.location.href = '/display'}
+                onClick={() => window.location.hash = '#/display'}
                 className="bg-gradient-to-r from-purple-600 to-blue-600 text-white font-sans-manrope font-bold text-xs sm:text-sm px-6 py-3.5 sm:py-3 rounded-full flex items-center justify-center gap-2.5 cursor-pointer group shadow-md hover:scale-[1.02] transition-all w-full sm:w-auto shrink-0"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

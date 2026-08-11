@@ -229,6 +229,17 @@ export const DisplayPage: React.FC = () => {
                 {isConnected ? '● LIVE' : '● RECONNECTING'}
               </span>
             </div>
+
+            <button
+              onClick={() => {
+                window.location.hash = '';
+                window.history.pushState({}, '', '/');
+                window.dispatchEvent(new Event('popstate'));
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-sans-manrope font-bold text-xs transition-colors cursor-pointer"
+            >
+              ← Back to Main Site
+            </button>
           </div>
 
           {/* Right: Clock + Quote + Participants */}

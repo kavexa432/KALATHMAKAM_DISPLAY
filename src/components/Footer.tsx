@@ -70,7 +70,7 @@ export const Footer: React.FC = () => {
               Phone: +91 94470 12345 / 0470 2695200
             </p>
             <p className="text-xs font-sans-manrope text-gray-400">
-              Email: kalathmakam2k26@mgmayiroor.ac.in
+              Email: kavexa432@gmail.com
             </p>
           </div>
 
