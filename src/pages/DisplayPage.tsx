@@ -32,7 +32,6 @@ export const DisplayPage: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [liveCompIndex, setLiveCompIndex] = useState(0);
   const [quoteIndex, setQuoteIndex] = useState(0);
-  const [breakingNewsIndex, setBreakingNewsIndex] = useState(0);
   const [isConnected] = useState(true); // Firebase connection status
 
   // Update clock every second
@@ -155,14 +154,6 @@ export const DisplayPage: React.FC = () => {
     return updates;
   }, [leaderHouse, results, liveCompetitions, liveCompIndex, houses.length]);
 
-  // Rotate latest updates every 6 seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setBreakingNewsIndex((prev) => (prev + 1) % latestUpdates.length);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, [latestUpdates.length]);
-
   // Group results by event for compact display
   const recentCompetitions = React.useMemo(() => {
     const eventMap = new Map<string, any[]>();
@@ -274,14 +265,19 @@ export const DisplayPage: React.FC = () => {
       </header>
 
       {/* LATEST UPDATES TICKER - DARK NAVY WITH RED ACCENT */}
-      <div className="bg-[#0F172A] text-white py-2.5 overflow-hidden border-b-2 border-[#EF4444]">
+      <div className="bg-[#0F172A] text-white py-2.5 overflow-hidden border-b-2 border-[#EF4444] shadow-sm">
         <div className="flex items-center gap-4 px-6">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-[#EF4444] rounded shrink-0">
-            <span className="text-xs font-sans-manrope font-black uppercase tracking-wider">📰 LATEST UPDATES</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-[#EF4444] rounded shrink-0 z-10 shadow">
+            <span className="text-xs font-sans-manrope font-black uppercase tracking-wider text-white">📰 LATEST UPDATES</span>
           </div>
           <div className="flex-1 overflow-hidden">
-            <div className="animate-marquee-slow whitespace-nowrap font-sans-manrope font-bold text-sm">
-              {latestUpdates[breakingNewsIndex]}
+            <div className="animate-marquee-slow whitespace-nowrap font-sans-manrope font-bold text-sm flex items-center gap-8">
+              {latestUpdates.concat(latestUpdates).map((update, idx) => (
+                <span key={idx} className="inline-flex items-center gap-8 shrink-0">
+                  <span className="text-slate-100">{update}</span>
+                  <span className="text-[#EF4444] font-black">•</span>
+                </span>
+              ))}
             </div>
           </div>
         </div>
@@ -613,7 +609,10 @@ export const DisplayPage: React.FC = () => {
           100% { transform: translateX(-50%); }
         }
         .animate-marquee-slow {
-          animation: marquee-slow 25s linear infinite;
+          animation: marquee-slow 35s linear infinite;
+        }
+        .animate-marquee-slow:hover {
+          animation-play-state: paused;
         }
         @keyframes scroll {
           0% { transform: translateX(0); }
