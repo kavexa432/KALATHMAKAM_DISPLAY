@@ -117,21 +117,51 @@ export const DisplayPage: React.FC = () => {
     });
   };
 
-  // Breaking news messages - auto-generated from results
-  const breakingNews = [
-    `${leaderHouse?.name || 'ASTRA'} extends lead to ${leaderHouse?.points || 0} points!`,
-    `New Winner: Anchoring (Cat III) — ${leaderHouse?.name || 'ASTRA'}`,
-    `Next Event: Mohiniyattam — Main Auditorium at 02:00 PM`,
-    `${results.filter(r => r.status === 'Published').length} Results Published • 4 Houses Competing`,
-  ];
+  // Latest updates messages - auto-generated from results
+  const latestUpdates = React.useMemo(() => {
+    const recentResults = results
+      .filter(r => r.status === 'Published' || r.status === 'Verified')
+      .slice(0, 3);
 
-  // Rotate breaking news every 6 seconds
+    const updates = [];
+    
+    // Add leader update
+    if (leaderHouse) {
+      updates.push(`🏆 ${leaderHouse.name} leads with ${leaderHouse.points} points!`);
+    }
+    
+    // Add recent result updates
+    recentResults.forEach(result => {
+      if (result.houseId !== 'NONE' && result.position === '1st') {
+        updates.push(`🥇 New Winner: ${result.eventTitle} — ${result.houseId} (+${result.points} pts)`);
+      }
+    });
+    
+    // Add next event
+    updates.push(`🎭 Next Event: ${liveCompetitions[liveCompIndex].name} — ${liveCompetitions[liveCompIndex].venue} at ${liveCompetitions[liveCompIndex].time}`);
+    
+    // Add results count
+    const publishedCount = results.filter(r => r.status === 'Published').length;
+    if (publishedCount > 0) {
+      updates.push(`📊 ${publishedCount} Results Published • 4 Houses Competing • ${houses.length} Total Events`);
+    }
+    
+    // Fallback if no updates
+    if (updates.length === 0) {
+      updates.push('🎨 Kalathmakam 2K26 Grand Arts Festival is Live!');
+      updates.push('📢 Stay tuned for live updates and results');
+    }
+    
+    return updates;
+  }, [leaderHouse, results, liveCompetitions, liveCompIndex, houses.length]);
+
+  // Rotate latest updates every 6 seconds
   useEffect(() => {
     const timer = setInterval(() => {
-      setBreakingNewsIndex((prev) => (prev + 1) % breakingNews.length);
+      setBreakingNewsIndex((prev) => (prev + 1) % latestUpdates.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, [breakingNews.length]);
+  }, [latestUpdates.length]);
 
   // Recent house results for scrolling cards
   const recentHouseResults = results
@@ -212,15 +242,15 @@ export const DisplayPage: React.FC = () => {
         </div>
       </header>
 
-      {/* BREAKING NEWS TICKER */}
+      {/* LATEST UPDATES TICKER */}
       <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-2 overflow-hidden">
         <div className="flex items-center gap-4 px-6">
           <div className="flex items-center gap-2 px-3 py-1 bg-white/20 rounded-full shrink-0 backdrop-blur-sm">
-            <span className="text-xs font-sans-manrope font-black uppercase tracking-wider">⚡ BREAKING NEWS</span>
+            <span className="text-xs font-sans-manrope font-black uppercase tracking-wider">📰 LATEST UPDATES</span>
           </div>
           <div className="flex-1 overflow-hidden">
             <div className="animate-marquee-slow whitespace-nowrap font-sans-manrope font-bold text-sm">
-              {breakingNews[breakingNewsIndex]}
+              {latestUpdates[breakingNewsIndex]}
             </div>
           </div>
         </div>
