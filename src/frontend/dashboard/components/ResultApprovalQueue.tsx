@@ -20,7 +20,7 @@ interface PlacementRow {
 }
 
 export const ResultApprovalQueue: React.FC = () => {
-  const { results, resultDrafts, events, publishEventWinners, verifyResult, publishResult, deleteResult, addEvent } = useFestival();
+  const { results, resultDrafts, events, publishEventWinners, verifyResult, publishResult, deleteResult, addEvent, cleanupConflictingEvents } = useFestival();
   const [manualOpen] = useState(true);
   const [selectedEventId, setSelectedEventId] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -56,6 +56,13 @@ export const ResultApprovalQueue: React.FC = () => {
   const selectedEvt = allSelectableEvents.find((e) => e.id === selectedEventId);
   const compType = selectedEvt?.competitionType || 'individual';
   const isNonHouse = !selectedEvt?.houseWise;
+  
+  // Special group competitions with no individual student names
+  const isHouseGroupEvent = selectedEvt && [
+    'evt-house-groupsong',
+    'evt-house-patrioticsong', 
+    'evt-house-nationalanthem'
+  ].includes(selectedEvt.id);
 
   // Points based on competition type
   const getPoints = (pos: '1st' | '2nd' | '3rd') => {
@@ -70,14 +77,14 @@ export const ResultApprovalQueue: React.FC = () => {
   const defaultHouse = (isNonHouse: boolean): HouseId | 'NONE' => isNonHouse ? 'NONE' : 'NOVA';
 
   const [placements, setPlacements] = useState<PlacementRow[]>([
-    { position: '1st', studentName: '', studentClass: '', houseId: 'NONE' },
-    { position: '2nd', studentName: '', studentClass: '', houseId: 'NONE' },
-    { position: '3rd', studentName: '', studentClass: '', houseId: 'NONE' },
+    { position: '1st', studentName: '', studentClass: '', houseId: 'NOVA' },
+    { position: '2nd', studentName: '', studentClass: '', houseId: 'NOVA' },
+    { position: '3rd', studentName: '', studentClass: '', houseId: 'NOVA' },
   ]);
 
   // Shared position state
-  const [shared2nd, setShared2nd] = useState<PlacementRow>({ position: '2nd', studentName: '', studentClass: '', houseId: 'NONE' });
-  const [shared3rd, setShared3rd] = useState<PlacementRow>({ position: '3rd', studentName: '', studentClass: '', houseId: 'NONE' });
+  const [shared2nd, setShared2nd] = useState<PlacementRow>({ position: '2nd', studentName: '', studentClass: '', houseId: 'NOVA' });
+  const [shared3rd, setShared3rd] = useState<PlacementRow>({ position: '3rd', studentName: '', studentClass: '', houseId: 'NOVA' });
   const [show2nd, setShow2nd] = useState(false);
   const [show3rd, setShow3rd] = useState(false);
 
@@ -105,10 +112,22 @@ export const ResultApprovalQueue: React.FC = () => {
     e.preventDefault();
     if (!selectedEvt) return;
 
-    const filled = placements.filter((p) => p.studentName.trim());
-    // Add shared 2nd and 3rd if toggled on and filled
-    if (show2nd && shared2nd.studentName.trim()) filled.push(shared2nd);
-    if (show3rd && shared3rd.studentName.trim()) filled.push(shared3rd);
+    let filled: PlacementRow[];
+    
+    if (isHouseGroupEvent) {
+      // For house group events, we only need house selection (no student names)
+      filled = placements.filter((p) => p.houseId && p.houseId !== 'NONE');
+      // Add shared positions if enabled and have house selected
+      if (show2nd && shared2nd.houseId && shared2nd.houseId !== 'NONE') filled.push(shared2nd);
+      if (show3rd && shared3rd.houseId && shared3rd.houseId !== 'NONE') filled.push(shared3rd);
+    } else {
+      // For regular events, we need student names
+      filled = placements.filter((p) => p.studentName.trim());
+      // Add shared positions if enabled and filled
+      if (show2nd && shared2nd.studentName.trim()) filled.push(shared2nd);
+      if (show3rd && shared3rd.studentName.trim()) filled.push(shared3rd);
+    }
+    
     if (filled.length === 0) return;
 
     setSubmitting(true);
@@ -118,8 +137,8 @@ export const ResultApprovalQueue: React.FC = () => {
         '',
         filled.map((p) => ({
           position: p.position,
-          studentName: p.studentName.trim(),
-          studentClass: p.studentClass.trim(),
+          studentName: isHouseGroupEvent ? `${p.houseId} House Team` : p.studentName.trim(),
+          studentClass: isHouseGroupEvent ? 'Group' : p.studentClass.trim(),
           houseId: p.houseId as HouseId,
           points: getPoints(p.position),
         }))
@@ -127,12 +146,12 @@ export const ResultApprovalQueue: React.FC = () => {
       setSuccessMsg(`✅ Results published for ${selectedEvt.eventName}!`);
       setSelectedEventId('');
       setPlacements([
-        { position: '1st', studentName: '', studentClass: '', houseId: 'NONE' },
-        { position: '2nd', studentName: '', studentClass: '', houseId: 'NONE' },
-        { position: '3rd', studentName: '', studentClass: '', houseId: 'NONE' },
+        { position: '1st', studentName: '', studentClass: '', houseId: 'NOVA' },
+        { position: '2nd', studentName: '', studentClass: '', houseId: 'NOVA' },
+        { position: '3rd', studentName: '', studentClass: '', houseId: 'NOVA' },
       ]);
-      setShared2nd({ position: '2nd', studentName: '', studentClass: '', houseId: 'NONE' });
-      setShared3rd({ position: '3rd', studentName: '', studentClass: '', houseId: 'NONE' });
+      setShared2nd({ position: '2nd', studentName: '', studentClass: '', houseId: 'NOVA' });
+      setShared3rd({ position: '3rd', studentName: '', studentClass: '', houseId: 'NOVA' });
       setShow2nd(false);
       setShow3rd(false);
       setTimeout(() => setSuccessMsg(''), 4000);
@@ -231,6 +250,14 @@ export const ResultApprovalQueue: React.FC = () => {
                   >
                     {isAddingComp ? 'Adding...' : '+ Add to List'}
                   </button>
+                  <button
+                    type="button"
+                    onClick={cleanupConflictingEvents}
+                    className="px-5 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-sans-manrope font-bold text-xs cursor-pointer transition-colors"
+                    title="Remove custom competitions that conflict with house events"
+                  >
+                    🧹 Cleanup Conflicts
+                  </button>
                   {newCompAddedMsg && (
                     <p className="text-[11px] font-bold text-emerald-700">{newCompAddedMsg}</p>
                   )}
@@ -257,12 +284,17 @@ export const ResultApprovalQueue: React.FC = () => {
                 </select>
                 {selectedEvt && (
                   <p className="text-[10px] text-[#5F5F5F] mt-1">
-                    {selectedEvt.category}
+                    <span className="font-bold text-blue-600">Event ID: {selectedEvt.id}</span>
+                    <span className="ml-2">{selectedEvt.category}</span>
                     {selectedEvt.competitionType && (
                       <span className="ml-2 text-[#FF5E84] font-bold">
                         ({compType === 'group' ? 'Group: 20/15/10 pts' : compType === 'team' ? 'Team (PPT): 10/7/5 pts' : 'Individual: 10/7/5 pts'})
                       </span>
                     )}
+                    <span className="ml-2 text-blue-600 font-bold">
+                      · {selectedEvt.houseWise ? 'House Competition' : 'Individual Competition'}
+                    </span>
+                    {isHouseGroupEvent && <span className="ml-2 text-purple-600 font-bold">· House Group Event (No student names)</span>}
                     {isNonHouse && <span className="ml-2 text-amber-600 font-bold">· Non-house event</span>}
                   </p>
                 )}
@@ -295,17 +327,28 @@ export const ResultApprovalQueue: React.FC = () => {
                           </button>
                         )}
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <input type="text" placeholder="Student Name" value={row.studentName}
-                          onChange={(e) => updatePlacement(idx, 'studentName', e.target.value)}
-                          className="px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-sans-manrope text-[#111111]" />
-                        <input type="text" placeholder="Class (e.g. 9A)" value={row.studentClass}
-                          onChange={(e) => updatePlacement(idx, 'studentClass', e.target.value.toUpperCase())}
-                          className="px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-sans-manrope text-[#111111]" />
+                      <div className={`grid ${isHouseGroupEvent ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-3'} gap-2`}>
+                        {!isHouseGroupEvent && (
+                          <>
+                            <input type="text" placeholder="Student Name" value={row.studentName}
+                              onChange={(e) => updatePlacement(idx, 'studentName', e.target.value)}
+                              className="px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-sans-manrope text-[#111111]" />
+                            <input type="text" placeholder="Class (e.g. 9A)" value={row.studentClass}
+                              onChange={(e) => updatePlacement(idx, 'studentClass', e.target.value.toUpperCase())}
+                              className="px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-sans-manrope text-[#111111]" />
+                          </>
+                        )}
                         <select value={row.houseId} onChange={(e) => updatePlacement(idx, 'houseId', e.target.value)}
-                          disabled={isNonHouse} style={{ colorScheme: 'light' }}
-                          className="px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-sans-manrope font-bold text-[#111111] disabled:opacity-50">
-                          {HOUSES.map((h) => (<option key={h.value} value={h.value} className="bg-white text-[#111111]">{h.label}</option>))}
+                          style={{ colorScheme: 'light' }}
+                          className="px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-sans-manrope font-bold text-[#111111]">
+                          {isNonHouse ? 
+                            [{ value: 'NONE', label: '⚪ No House (Individual)' }].map((h) => (
+                              <option key={h.value} value={h.value} className="bg-white text-[#111111]">{h.label}</option>
+                            )) :
+                            HOUSES.filter(h => h.value !== 'NONE').map((h) => (
+                              <option key={h.value} value={h.value} className="bg-white text-[#111111]">{h.label}</option>
+                            ))
+                          }
                         </select>
                       </div>
                     </div>
@@ -317,17 +360,28 @@ export const ResultApprovalQueue: React.FC = () => {
                           <span className="text-base">🥈</span>
                           <span className="font-sans-manrope font-extrabold text-xs text-blue-800">Shared 2nd Place — Second Student</span>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                          <input type="text" placeholder="Student Name" value={shared2nd.studentName}
-                            onChange={(e) => setShared2nd(p => ({ ...p, studentName: e.target.value }))}
-                            className="px-3 py-2 rounded-xl bg-white border border-blue-200 text-xs font-sans-manrope text-[#111111]" />
-                          <input type="text" placeholder="Class (e.g. 9A)" value={shared2nd.studentClass}
-                            onChange={(e) => setShared2nd(p => ({ ...p, studentClass: e.target.value.toUpperCase() }))}
-                            className="px-3 py-2 rounded-xl bg-white border border-blue-200 text-xs font-sans-manrope text-[#111111]" />
+                        <div className={`grid ${isHouseGroupEvent ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-3'} gap-2`}>
+                          {!isHouseGroupEvent && (
+                            <>
+                              <input type="text" placeholder="Student Name" value={shared2nd.studentName}
+                                onChange={(e) => setShared2nd(p => ({ ...p, studentName: e.target.value }))}
+                                className="px-3 py-2 rounded-xl bg-white border border-blue-200 text-xs font-sans-manrope text-[#111111]" />
+                              <input type="text" placeholder="Class (e.g. 9A)" value={shared2nd.studentClass}
+                                onChange={(e) => setShared2nd(p => ({ ...p, studentClass: e.target.value.toUpperCase() }))}
+                                className="px-3 py-2 rounded-xl bg-white border border-blue-200 text-xs font-sans-manrope text-[#111111]" />
+                            </>
+                          )}
                           <select value={shared2nd.houseId} onChange={(e) => setShared2nd(p => ({ ...p, houseId: e.target.value as HouseId }))}
-                            disabled={isNonHouse} style={{ colorScheme: 'light' }}
-                            className="px-3 py-2 rounded-xl bg-white border border-blue-200 text-xs font-sans-manrope font-bold text-[#111111] disabled:opacity-50">
-                            {HOUSES.map((h) => (<option key={h.value} value={h.value} className="bg-white text-[#111111]">{h.label}</option>))}
+                            style={{ colorScheme: 'light' }}
+                            className="px-3 py-2 rounded-xl bg-white border border-blue-200 text-xs font-sans-manrope font-bold text-[#111111]">
+                            {isNonHouse ? 
+                              [{ value: 'NONE', label: '⚪ No House (Individual)' }].map((h) => (
+                                <option key={h.value} value={h.value} className="bg-white text-[#111111]">{h.label}</option>
+                              )) :
+                              HOUSES.filter(h => h.value !== 'NONE').map((h) => (
+                                <option key={h.value} value={h.value} className="bg-white text-[#111111]">{h.label}</option>
+                              ))
+                            }
                           </select>
                         </div>
                       </div>
@@ -340,17 +394,28 @@ export const ResultApprovalQueue: React.FC = () => {
                           <span className="text-base">🥉</span>
                           <span className="font-sans-manrope font-extrabold text-xs text-orange-800">Shared 3rd Place — Second Student</span>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                          <input type="text" placeholder="Student Name" value={shared3rd.studentName}
-                            onChange={(e) => setShared3rd(p => ({ ...p, studentName: e.target.value }))}
-                            className="px-3 py-2 rounded-xl bg-white border border-orange-200 text-xs font-sans-manrope text-[#111111]" />
-                          <input type="text" placeholder="Class (e.g. 9A)" value={shared3rd.studentClass}
-                            onChange={(e) => setShared3rd(p => ({ ...p, studentClass: e.target.value.toUpperCase() }))}
-                            className="px-3 py-2 rounded-xl bg-white border border-orange-200 text-xs font-sans-manrope text-[#111111]" />
+                        <div className={`grid ${isHouseGroupEvent ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-3'} gap-2`}>
+                          {!isHouseGroupEvent && (
+                            <>
+                              <input type="text" placeholder="Student Name" value={shared3rd.studentName}
+                                onChange={(e) => setShared3rd(p => ({ ...p, studentName: e.target.value }))}
+                                className="px-3 py-2 rounded-xl bg-white border border-orange-200 text-xs font-sans-manrope text-[#111111]" />
+                              <input type="text" placeholder="Class (e.g. 9A)" value={shared3rd.studentClass}
+                                onChange={(e) => setShared3rd(p => ({ ...p, studentClass: e.target.value.toUpperCase() }))}
+                                className="px-3 py-2 rounded-xl bg-white border border-orange-200 text-xs font-sans-manrope text-[#111111]" />
+                            </>
+                          )}
                           <select value={shared3rd.houseId} onChange={(e) => setShared3rd(p => ({ ...p, houseId: e.target.value as HouseId }))}
-                            disabled={isNonHouse} style={{ colorScheme: 'light' }}
-                            className="px-3 py-2 rounded-xl bg-white border border-orange-200 text-xs font-sans-manrope font-bold text-[#111111] disabled:opacity-50">
-                            {HOUSES.map((h) => (<option key={h.value} value={h.value} className="bg-white text-[#111111]">{h.label}</option>))}
+                            style={{ colorScheme: 'light' }}
+                            className="px-3 py-2 rounded-xl bg-white border border-orange-200 text-xs font-sans-manrope font-bold text-[#111111]">
+                            {isNonHouse ? 
+                              [{ value: 'NONE', label: '⚪ No House (Individual)' }].map((h) => (
+                                <option key={h.value} value={h.value} className="bg-white text-[#111111]">{h.label}</option>
+                              )) :
+                              HOUSES.filter(h => h.value !== 'NONE').map((h) => (
+                                <option key={h.value} value={h.value} className="bg-white text-[#111111]">{h.label}</option>
+                              ))
+                            }
                           </select>
                         </div>
                       </div>
@@ -482,9 +547,9 @@ export const ResultApprovalQueue: React.FC = () => {
                           </button>
                         )}
                         <button
-                          onClick={() => {
+                          onClick={async () => {
                             if (window.confirm(`Delete result for ${r.participantName} (${r.position} in ${r.eventTitle})?\n\nThis will retract the result and post a live notice to attendees.`)) {
-                              deleteResult(r.id);
+                              await deleteResult(r.id);
                             }
                           }}
                           className="px-3 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-bold text-[11px] cursor-pointer"

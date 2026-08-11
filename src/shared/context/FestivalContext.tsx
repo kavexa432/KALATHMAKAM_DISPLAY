@@ -75,7 +75,8 @@ interface FestivalContextType {
   submitResult: (newResult: Omit<EventResultModel, 'id' | 'createdAt' | 'status'>) => void;
   verifyResult: (resultId: string) => void;
   publishResult: (resultId: string) => void;
-  deleteResult: (resultId: string) => void;
+  deleteResult: (resultId: string) => Promise<void>;
+  cleanupConflictingEvents: () => Promise<void>;
   publishEventWinners: (
     eventId: string,
     judgeNotes: string,
@@ -509,11 +510,28 @@ export const FestivalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
           const canonicalEvents = [...initialEvents, ...houseEvents];
           const canonicalById = new Map(canonicalEvents.map((event) => [event.id, event]));
-          const sourceEvents = firestoreEvents.length > 0 ? firestoreEvents : canonicalEvents;
+          
+          // Create a name-to-canonical mapping to detect conflicts
+          const canonicalByName = new Map(canonicalEvents.map((event) => [event.eventName.toLowerCase(), event]));
+          
+          // Filter out Firestore events that conflict with canonical house events
+          const filteredFirestoreEvents = firestoreEvents.filter((fsEvent) => {
+            const canonicalEvent = canonicalByName.get(fsEvent.eventName?.toLowerCase());
+            // If there's a canonical event with same name that's a house event, exclude the Firestore version
+            if (canonicalEvent && canonicalEvent.houseWise && canonicalEvent.category === 'House Item') {
+              console.warn(`Excluding Firestore event "${fsEvent.eventName}" (${fsEvent.id}) - conflicts with canonical house event ${canonicalEvent.id}`);
+              return false;
+            }
+            return true;
+          });
+          
+          const sourceEvents = filteredFirestoreEvents.length > 0 
+            ? [...canonicalEvents, ...filteredFirestoreEvents] 
+            : canonicalEvents;
 
           const mergedEvents = sourceEvents.map((sourceEvent) => {
             const localEvent = canonicalById.get(sourceEvent.id) || sourceEvent;
-            const firestoreEvent = firestoreEvents.find((event) => event.id === localEvent.id);
+            const firestoreEvent = filteredFirestoreEvents.find((event) => event.id === localEvent.id);
             const rawMerged = firestoreEvent
               ? { ...localEvent, ...getOperationalEventFields(firestoreEvent) }
               : localEvent;
@@ -877,6 +895,40 @@ export const FestivalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
+  const cleanupConflictingEvents = async () => {
+    try {
+      const canonicalEvents = [...initialEvents, ...houseEvents];
+      const canonicalByName = new Map(canonicalEvents.map((event) => [event.eventName.toLowerCase(), event]));
+      
+      // Find Firestore events that conflict with canonical house events
+      const conflictingEvents = events.filter((event) => {
+        if (event.id.startsWith('evt-custom-')) {
+          const canonicalEvent = canonicalByName.get(event.eventName?.toLowerCase());
+          return canonicalEvent && canonicalEvent.houseWise && canonicalEvent.category === 'House Item';
+        }
+        return false;
+      });
+      
+      // Delete conflicting events from Firestore
+      for (const conflictEvent of conflictingEvents) {
+        await deleteDoc(doc(db, 'events', conflictEvent.id));
+        console.log(`Deleted conflicting event: ${conflictEvent.eventName} (${conflictEvent.id})`);
+      }
+      
+      if (conflictingEvents.length > 0) {
+        logAuditAction(
+          currentUser?.name || 'System',
+          currentUser?.role || 'admin',
+          'Cleaned Conflicting Events',
+          'System Maintenance',
+          `Removed ${conflictingEvents.length} custom events that conflicted with canonical house events`
+        );
+      }
+    } catch (e) {
+      console.error('Failed to cleanup conflicting events:', e);
+    }
+  };
+
   // Result Workflow Actions
   const submitResult = (newResultData: Omit<EventResultModel, 'id' | 'createdAt' | 'status'>) => {
     // Determine correct points based on the event's competitionType
@@ -974,57 +1026,93 @@ export const FestivalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     );
   };
 
-  const deleteResult = (resultId: string) => {
+  const deleteResult = async (resultId: string) => {
     const target = results.find((r) => r.id === resultId);
     if (!target) return;
 
-    // Remove from local state
-    setResults((prev) => prev.filter((r) => r.id !== resultId));
+    try {
+      // Remove from local state first
+      setResults((prev) => prev.filter((r) => r.id !== resultId));
 
-    // If this was the only result for the event, mark event as no longer having results
-    const remainingForEvent = results.filter((r) => r.id !== resultId && r.eventId === target.eventId);
-    if (remainingForEvent.length === 0) {
-      setEvents((prev) =>
-        prev.map((e) =>
-          e.id === target.eventId
-            ? { ...e, resultsPublished: false, winnerUploaded: false, housePointsUpdated: false }
-            : e
-        )
+      // If this was the only result for the event, mark event as no longer having results
+      const remainingForEvent = results.filter((r) => r.id !== resultId && r.eventId === target.eventId);
+      if (remainingForEvent.length === 0) {
+        setEvents((prev) =>
+          prev.map((e) =>
+            e.id === target.eventId
+              ? { ...e, resultsPublished: false, winnerUploaded: false, housePointsUpdated: false }
+              : e
+          )
+        );
+        
+        try {
+          await setDoc(doc(db, 'events', target.eventId), { 
+            resultsPublished: false, 
+            winnerUploaded: false, 
+            housePointsUpdated: false 
+          }, { merge: true });
+        } catch (eventError: any) {
+          console.warn('Failed to update event status, but result deleted locally:', eventError.message);
+        }
+      }
+
+      // Try to delete from Firestore
+      try {
+        await deleteDoc(doc(db, 'results', resultId));
+        console.log(`Successfully deleted result ${resultId} from Firestore`);
+      } catch (firestoreError: any) {
+        console.warn('Failed to delete from Firestore, but removed locally:', firestoreError.message);
+        
+        // Show user-friendly error if quota exceeded
+        if (firestoreError.code === 'resource-exhausted') {
+          alert('⚠️ Firebase quota exceeded. Result removed locally but may reappear after page refresh. Consider upgrading Firebase plan or try again later.');
+        } else {
+          alert(`⚠️ Delete partially failed: ${firestoreError.message}. Result removed from local view.`);
+        }
+      }
+
+      // Post a live activity feed notice so attendees see it was retracted
+      const deletionNotice: LiveActivityFeedItem = {
+        id: `feed-del-${Date.now()}`,
+        festivalId: '2k26',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        type: 'Stage Update',
+        priority: 'Important',
+        content: `⚠️ Result retracted: ${target.eventTitle} — ${target.position} place (${target.participantName}) has been removed by admin. Leaderboard updated.`,
+        houseId: target.houseId,
+        points: 0,
+        read: false,
+      };
+      setLiveFeed((prev) => [deletionNotice, ...prev]);
+
+      // Announce via the live feed
+      addAnnouncement(
+        `⚠️ Result Retracted: ${target.eventTitle} — ${target.position} place result for ${target.participantName} (${target.houseId}) has been removed. Scores have been updated.`,
+        'Stage Update',
+        'Important'
       );
-      setDoc(doc(db, 'events', target.eventId), { resultsPublished: false, winnerUploaded: false, housePointsUpdated: false }, { merge: true }).catch(console.error);
+
+      logAuditAction(
+        currentUser?.name || 'Admin',
+        currentUser?.role || 'admin',
+        'Deleted Result',
+        target.eventTitle,
+        `Removed ${target.position} place result for ${target.participantName} (${target.houseId}, -${target.points} pts)`
+      );
+      
+    } catch (error: any) {
+      console.error('Delete result failed:', error);
+      
+      // Restore the result to local state if complete deletion failed
+      setResults((prev) => [...prev, target]);
+      
+      // Show user-friendly error message
+      if (error.code === 'resource-exhausted') {
+        alert('❌ Cannot delete result: Firebase quota exceeded. Please try again later or upgrade your Firebase plan.');
+      } else {
+        alert(`❌ Delete failed: ${error.message}`);
+      }
     }
-
-    // Delete from Firestore
-    deleteDoc(doc(db, 'results', resultId)).catch(console.error);
-
-    // Post a live activity feed notice so attendees see it was retracted
-    const deletionNotice: LiveActivityFeedItem = {
-      id: `feed-del-${Date.now()}`,
-      festivalId: '2k26',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      type: 'Stage Update',
-      priority: 'Important',
-      content: `⚠️ Result retracted: ${target.eventTitle} — ${target.position} place (${target.participantName}) has been removed by admin. Leaderboard updated.`,
-      houseId: target.houseId,
-      points: 0,
-      read: false,
-    };
-    setLiveFeed((prev) => [deletionNotice, ...prev]);
-
-    // Announce via the live feed
-    addAnnouncement(
-      `⚠️ Result Retracted: ${target.eventTitle} — ${target.position} place result for ${target.participantName} (${target.houseId}) has been removed. Scores have been updated.`,
-      'Stage Update',
-      'Important'
-    );
-
-    logAuditAction(
-      currentUser?.name || 'Admin',
-      currentUser?.role || 'admin',
-      'Deleted Result',
-      target.eventTitle,
-      `Removed ${target.position} place result for ${target.participantName} (${target.houseId}, -${target.points} pts)`
-    );
   };
 
   const publishEventWinners = async (
@@ -1321,6 +1409,7 @@ export const FestivalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         verifyResult,
         publishResult,
         deleteResult,
+        cleanupConflictingEvents,
         publishEventWinners,
         addAnnouncement,
         deleteAnnouncement,

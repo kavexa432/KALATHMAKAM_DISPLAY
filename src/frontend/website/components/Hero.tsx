@@ -4,12 +4,10 @@ import { Globe, Trophy, Building2, MapPin, Sparkles } from 'lucide-react';
 import heroArt from '../../../assets/hero_kerala_art_transparent.png';
 
 interface HeroProps {
-  onOpenPromo: () => void;
-  onViewResults: () => void;
   onViewLeaderboard: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onOpenPromo, onViewResults, onViewLeaderboard }) => {
+export const Hero: React.FC<HeroProps> = ({ onViewLeaderboard }) => {
   return (
     <section
       id="home"
@@ -123,33 +121,27 @@ export const Hero: React.FC<HeroProps> = ({ onOpenPromo, onViewResults, onViewLe
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-2 w-full sm:w-auto"
             >
-              {/* Primary Pill: Results → */}
+              {/* Primary Pill: Leaderboard */}
               <button
-                onClick={onViewResults}
+                onClick={onViewLeaderboard}
                 className="gradient-btn-primary text-white font-sans-manrope font-bold text-xs sm:text-sm px-6 py-3.5 sm:py-3 rounded-full flex items-center justify-center gap-2.5 cursor-pointer group shadow-md hover:scale-[1.02] transition-all w-full sm:w-auto shrink-0"
               >
-                <span>Results</span>
+                <Trophy className="w-4 h-4 text-white" />
+                <span>View Leaderboard</span>
                 <svg className="w-4 h-4 fill-white transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
 
-              {/* Secondary Pill: Watch Promo */}
+              {/* Large Display Mode Button */}
               <button
-                onClick={onOpenPromo}
-                className="bg-white/90 backdrop-blur-md text-[#111111] font-sans-manrope font-bold text-xs sm:text-[13px] px-5 py-3.5 sm:py-3 rounded-full flex items-center justify-center gap-2 cursor-pointer border border-black/10 shadow-xs hover:bg-white hover:shadow-md hover:scale-[1.02] transition-all group w-full sm:w-auto shrink-0"
+                onClick={() => window.location.href = '/display'}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white font-sans-manrope font-bold text-xs sm:text-sm px-6 py-3.5 sm:py-3 rounded-full flex items-center justify-center gap-2.5 cursor-pointer group shadow-md hover:scale-[1.02] transition-all w-full sm:w-auto shrink-0"
               >
-                <div className="w-5 h-5 rounded-full bg-black flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <svg className="w-2.5 h-2.5 fill-white ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-                <span>Watch Promo</span>
-              </button>
-
-              {/* Tertiary Lighter Pill: Leaderboard */}
-              <button
-                onClick={onViewLeaderboard}
-                className="bg-white/90 hover:bg-white text-[#5F5F5F] hover:text-[#111111] font-sans-manrope font-semibold text-xs sm:text-[13px] px-4.5 py-3.5 sm:py-3 rounded-full flex items-center justify-center gap-2 cursor-pointer border border-black/10 shadow-xs hover:scale-[1.02] transition-all w-full sm:w-auto shrink-0"
-              >
-                <Trophy className="w-4 h-4 text-[#FF5E84]" />
-                <span>Leaderboard</span>
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2" />
+                  <line x1="8" y1="21" x2="16" y2="21" />
+                  <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
+                <span>📺 Large Display Mode</span>
               </button>
             </motion.div>
 

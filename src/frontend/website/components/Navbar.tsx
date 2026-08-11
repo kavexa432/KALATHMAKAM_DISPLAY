@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, User, Shield, Lock, Settings, LogOut } from 'lucide-react';
+import { Menu, X, User, Settings, LogOut } from 'lucide-react';
 import { useFestival } from '../../../shared/context/FestivalContext';
 import { NotificationDrawer } from './NotificationDrawer';
 import logoImage from '../../../assets/kalathmakam_2k26_logo.png';
@@ -19,13 +19,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLogin }) => {
 
   const navLinks = [
     { name: 'Home', href: '#home', id: 'home' },
-    { name: 'About', href: '#about', id: 'about' },
-    { name: 'Events', href: '#events', id: 'events' },
-    { name: 'Schedule', href: '#schedule', id: 'schedule' },
-    { name: 'Results', href: '#results', id: 'results' },
     { name: 'Leaderboard', href: '#leaderboard', id: 'leaderboard' },
-    { name: 'Gallery', href: '#gallery', id: 'gallery' },
-    { name: 'Contact', href: '#contact', id: 'contact' },
   ];
 
   useEffect(() => {
@@ -81,9 +75,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLogin }) => {
       setActiveSection(targetId);
     }
   };
-
-  const isDev = currentUser?.role === 'developer' || currentUser?.role === 'Developer';
-  const isAdmin = (currentUser?.role === 'admin' || currentUser?.role === 'Admin') && currentUser?.approved;
 
   return (
     <>
@@ -147,28 +138,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLogin }) => {
                     
                     {/* Role Button + Profile Trigger Pill */}
                     <div className="flex items-center gap-2">
-                      {isDev && (
-                        <a
-                          href="#control-center"
-                          onClick={(e) => handleNavClick(e, 'control-center')}
-                          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-sans-manrope font-bold text-xs px-4 py-1.5 rounded-full shadow-xs flex items-center gap-1.5 transition-all cursor-pointer hover:scale-[1.02] border border-white/20"
-                        >
-                          <Shield className="w-3.5 h-3.5 text-white" />
-                          <span>Dashboard</span>
-                        </a>
-                      )}
-
-                      {isAdmin && (
-                        <a
-                          href="#control-center"
-                          onClick={(e) => handleNavClick(e, 'control-center')}
-                          className="bg-[#111111] hover:bg-black text-white font-sans-manrope font-bold text-xs px-4 py-1.5 rounded-full shadow-xs flex items-center gap-1.5 transition-all cursor-pointer hover:scale-[1.02] border border-white/20"
-                        >
-                          <Lock className="w-3.5 h-3.5 text-[#FF5E84]" />
-                          <span>Admin</span>
-                        </a>
-                      )}
-
                       {/* User Profile Avatar Pill Button */}
                       <button
                         onClick={() => setUserDropdownOpen(!userDropdownOpen)}
@@ -211,30 +180,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLogin }) => {
                               {currentUser.email}
                             </p>
                           </div>
-                          <span
-                            className={`px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase shrink-0 ${
-                              isDev
-                                ? 'bg-blue-100 text-blue-800'
-                                : isAdmin
-                                ? 'bg-amber-100 text-amber-800'
-                                : 'bg-slate-100 text-slate-700'
-                            }`}
-                          >
+                          <span className="px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase shrink-0 bg-slate-100 text-slate-700">
                             {currentUser.role}
                           </span>
                         </div>
 
                         <div className="space-y-1">
-                          {(isDev || isAdmin) && (
-                            <a
-                              href="#control-center"
-                              onClick={(e) => handleNavClick(e, 'control-center')}
-                              className="w-full py-2 px-3 rounded-xl hover:bg-black/5 text-xs font-bold text-[#111111] flex items-center gap-2 transition-colors"
-                            >
-                              <Shield className="w-3.5 h-3.5 text-blue-600" />
-                              <span>{isDev ? 'Dashboard' : 'Admin Portal'}</span>
-                            </a>
-                          )}
                           <button
                             onClick={() => setUserDropdownOpen(false)}
                             className="w-full py-2 px-3 rounded-xl hover:bg-black/5 text-xs font-bold text-[#5F5F5F] flex items-center gap-2 transition-colors cursor-pointer"
@@ -326,41 +277,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLogin }) => {
                         {currentUser.email}
                       </p>
                     </div>
-                    <span
-                      className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase shrink-0 ${
-                        isDev
-                          ? 'bg-blue-100 text-blue-800'
-                          : isAdmin
-                          ? 'bg-amber-100 text-amber-800'
-                          : 'bg-slate-100 text-slate-700'
-                      }`}
-                    >
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase shrink-0 bg-slate-100 text-slate-700">
                       {currentUser.role}
                     </span>
                   </div>
-
-                  {/* Mobile Dashboard Quick Action */}
-                  {isDev && (
-                    <a
-                      href="#control-center"
-                      onClick={(e) => handleNavClick(e, 'control-center')}
-                      className="w-full py-2.5 px-4 rounded-xl bg-blue-600 text-white font-sans-manrope font-bold text-xs flex items-center justify-center gap-2 shadow-xs"
-                    >
-                      <Shield className="w-4 h-4" />
-                      <span>⚡ Dashboard</span>
-                    </a>
-                  )}
-
-                  {isAdmin && (
-                    <a
-                      href="#control-center"
-                      onClick={(e) => handleNavClick(e, 'control-center')}
-                      className="w-full py-2.5 px-4 rounded-xl bg-[#111111] text-white font-sans-manrope font-bold text-xs flex items-center justify-center gap-2 shadow-xs"
-                    >
-                      <Lock className="w-4 h-4 text-[#FF5E84]" />
-                      <span>🔒 Admin</span>
-                    </a>
-                  )}
 
                   <button
                     onClick={() => {

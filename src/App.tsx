@@ -1,34 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FestivalProvider } from './shared/context/FestivalContext';
 import { Navbar } from './frontend/website/components/Navbar';
 import { Hero } from './frontend/website/components/Hero';
-import { FestivalControlCenter } from './frontend/website/components/FestivalControlCenter';
-import { LiveEventsSection } from './frontend/website/components/LiveEventsSection';
 import { LeaderboardSection } from './frontend/website/components/LeaderboardSection';
-import { ResultsSection } from './frontend/website/components/ResultsSection';
-import { ScheduleTimeline } from './components/ScheduleTimeline';
-import { About } from './components/About';
-import { GalleryMasonry } from './components/GalleryMasonry';
-import { ContactSection } from './components/ContactSection';
-import { Footer } from './components/Footer';
-import { Dashboard } from './frontend/dashboard/Dashboard';
 import { LoginModal } from './shared/components/LoginModal';
-import { PromoModal } from './components/PromoModal';
-import { RegisterModal } from './components/RegisterModal';
-import type { EventItem } from './data/eventsData';
+import { DisplayPage } from './pages/DisplayPage';
 
 export function AppContent() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const [promoModalOpen, setPromoModalOpen] = useState(false);
-  const [registerModalOpen, setRegisterModalOpen] = useState(false);
-  const [selectedRegisterEvent] = useState<EventItem | null>(null);
+  const [isDisplayMode, setIsDisplayMode] = useState(false);
 
-  const handleViewResults = () => {
-    const el = document.getElementById('results');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  // Check if URL has /display route
+  useEffect(() => {
+    const checkDisplayMode = () => {
+      const path = window.location.pathname;
+      setIsDisplayMode(path === '/display' || path.includes('/display'));
+    };
+
+    checkDisplayMode();
+    window.addEventListener('popstate', checkDisplayMode);
+    return () => window.removeEventListener('popstate', checkDisplayMode);
+  }, []);
 
   const handleViewLeaderboard = () => {
     const el = document.getElementById('leaderboard');
@@ -37,69 +29,33 @@ export function AppContent() {
     }
   };
 
+  // If display mode, show fullscreen display
+  if (isDisplayMode) {
+    return <DisplayPage />;
+  }
+
+  // Normal website mode
   return (
     <div className="min-h-screen bg-[#FAF8F5] text-[#111111] relative font-sans-manrope selection:bg-[#FF5E84] selection:text-white overflow-x-hidden">
       
-      {/* Public Navigation Bar */}
+      {/* Navigation Bar */}
       <Navbar onOpenLogin={() => setLoginModalOpen(true)} />
 
-      {/* Main Homepage Flow */}
+      {/* Main Content */}
       <main>
-        {/* 1. Refined Hero Section with 30-Point Pixel Alignment & Parallax */}
+        {/* Hero Section */}
         <Hero
-          onOpenPromo={() => setPromoModalOpen(true)}
-          onViewResults={handleViewResults}
           onViewLeaderboard={handleViewLeaderboard}
         />
 
-        {/* 2. Festival Control Center Widget */}
-        <FestivalControlCenter />
-
-        {/* 3. Today's Live Events & Category Filter */}
-        <LiveEventsSection />
-
-        {/* 4. House Championship Leaderboard & Score Graph */}
+        {/* Leaderboard Section */}
         <LeaderboardSection />
-
-        {/* 5. Latest Verified Results & Individual Achievements */}
-        <ResultsSection />
-
-        {/* 6. Program Schedule Timeline */}
-        <ScheduleTimeline />
-
-        {/* 7. Editorial About Kalathmakam */}
-        <About />
-
-        {/* 8. Categorized Gallery Masonry */}
-        <GalleryMasonry />
-
-        {/* 11. Contact & Map Section */}
-        <ContactSection />
-
-        {/* 12. Mission Control CMS Dashboard (for Admins & Developers) */}
-        <Dashboard />
       </main>
-
-      {/* Footer */}
-      <Footer />
 
       {/* Auth Login Modal */}
       <LoginModal
         isOpen={loginModalOpen}
         onClose={() => setLoginModalOpen(false)}
-      />
-
-      {/* Teaser Video Promo Modal */}
-      <PromoModal
-        isOpen={promoModalOpen}
-        onClose={() => setPromoModalOpen(false)}
-      />
-
-      {/* Registration Modal */}
-      <RegisterModal
-        isOpen={registerModalOpen}
-        onClose={() => setRegisterModalOpen(false)}
-        preselectedEvent={selectedRegisterEvent}
       />
 
     </div>
