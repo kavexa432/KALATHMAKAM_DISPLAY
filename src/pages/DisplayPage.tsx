@@ -177,7 +177,7 @@ export const DisplayPage: React.FC = () => {
         eventMap.get(key)!.push(result);
       });
     
-    // Convert to array and get latest 8 competitions
+    // Convert to array containing all house competitions
     return Array.from(eventMap.entries())
       .map(([eventTitle, results], i) => ({
         eventTitle,
@@ -186,9 +186,8 @@ export const DisplayPage: React.FC = () => {
           return (posOrder[a.position as keyof typeof posOrder] || 999) - 
                  (posOrder[b.position as keyof typeof posOrder] || 999);
         }),
-        time: `${11 - (i % 5)}:${45 - (i % 8) * 5} AM`,
-      }))
-      .slice(0, 8);
+        time: `${10 + Math.floor(i / 2)}:${(i * 15) % 60 < 10 ? '0' : ''}${(i * 15) % 60} ${i >= 4 ? 'PM' : 'AM'}`,
+      }));
   }, [results]);
 
   return (
