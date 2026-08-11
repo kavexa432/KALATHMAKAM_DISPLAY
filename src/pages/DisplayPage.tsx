@@ -98,6 +98,9 @@ export const DisplayPage: React.FC = () => {
   const secondHouse = standings[1];
   const leadPointsDiff = leaderHouse ? leaderHouse.points - (secondHouse ? secondHouse.points : 0) : 0;
 
+  // Check if today's stage competitions are concluded (after 6:00 PM)
+  const isDayConcluded = currentTime.getHours() >= 18;
+
   // Format time
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', { 
@@ -136,8 +139,12 @@ export const DisplayPage: React.FC = () => {
       }
     });
     
-    // Add next event
-    updates.push(`🎭 Next Event: ${liveCompetitions[liveCompIndex].name} — ${liveCompetitions[liveCompIndex].venue} at ${liveCompetitions[liveCompIndex].time}`);
+    // Add next event or day concluded update
+    if (isDayConcluded) {
+      updates.push('🎉 All stage competitions for today have concluded! Check final standings below.');
+    } else {
+      updates.push(`🎭 Next Event: ${liveCompetitions[liveCompIndex].name} — ${liveCompetitions[liveCompIndex].venue} at ${liveCompetitions[liveCompIndex].time}`);
+    }
     
     // Add results count
     const publishedCount = results.filter(r => r.status === 'Published').length;
@@ -485,27 +492,48 @@ export const DisplayPage: React.FC = () => {
         {/* RIGHT COLUMN - 4 cols */}
         <div className="col-span-4 flex flex-col gap-5 overflow-hidden">
           
-          {/* UPCOMING EVENT - WHITE WITH PURPLE ACCENT */}
-          <div className="bg-white text-[#0F172A] rounded-xl p-4 border-l-4 border-[#7C3AED] shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="px-3 py-1.5 bg-[#7C3AED] text-white rounded text-sm font-black flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping absolute" />
-                <span className="w-2.5 h-2.5 rounded-full bg-white relative" />
-                LIVE NOW
+          {/* LIVE COMPETITION OR CONCLUDED CARD */}
+          {isDayConcluded ? (
+            <div className="bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] text-white rounded-xl p-5 border-l-4 border-[#10B981] shadow-md relative overflow-hidden">
+              <div className="flex items-center justify-between mb-3">
+                <div className="px-3 py-1.5 bg-[#10B981] text-white rounded text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                  EVENTS CONCLUDED
+                </div>
+                <span className="text-xs font-bold text-emerald-400">DAY 1 COMPLETE</span>
               </div>
-              <div className="text-sm font-bold text-[#7C3AED]">{liveCompetitions[liveCompIndex].time}</div>
+              <h3 className="font-sans-manrope font-black text-2xl text-white mb-1.5 leading-tight">
+                All Stage Competitions Over
+              </h3>
+              <p className="text-xs text-[#94A3B8] mb-3 leading-relaxed">
+                All venue performances and competitions for today have concluded. Final tabulations and results are published below.
+              </p>
+              <div className="px-3 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-xs font-bold text-center text-emerald-300">
+                🏆 Day 1 Leaderboard Published
+              </div>
             </div>
-            <h3 className="font-sans-manrope font-black text-2xl text-[#7C3AED] mb-2">
-              {liveCompetitions[liveCompIndex].name}
-            </h3>
-            <div className="flex items-center gap-2 text-base mb-3 text-[#64748B]">
-              <Calendar className="w-4 h-4" />
-              <span className="font-medium">📍 {liveCompetitions[liveCompIndex].venue}</span>
+          ) : (
+            <div className="bg-white text-[#0F172A] rounded-xl p-4 border-l-4 border-[#7C3AED] shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="px-3 py-1.5 bg-[#7C3AED] text-white rounded text-sm font-black flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping absolute" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-white relative" />
+                  LIVE NOW
+                </div>
+                <div className="text-sm font-bold text-[#7C3AED]">{liveCompetitions[liveCompIndex].time}</div>
+              </div>
+              <h3 className="font-sans-manrope font-black text-2xl text-[#7C3AED] mb-2">
+                {liveCompetitions[liveCompIndex].name}
+              </h3>
+              <div className="flex items-center gap-2 text-base mb-3 text-[#64748B]">
+                <Calendar className="w-4 h-4" />
+                <span className="font-medium">📍 {liveCompetitions[liveCompIndex].venue}</span>
+              </div>
+              <div className="px-3 py-2 bg-[#F5F3FF] border border-[#DDD6FE] rounded-lg text-sm font-bold text-center text-[#7C3AED]">
+                {liveCompetitions[liveCompIndex].cat}
+              </div>
             </div>
-            <div className="px-3 py-2 bg-[#F5F3FF] border border-[#DDD6FE] rounded-lg text-sm font-bold text-center text-[#7C3AED]">
-              {liveCompetitions[liveCompIndex].cat}
-            </div>
-          </div>
+          )}
           
           {/* CHAMPION CARD - PREMIUM DARK */}
           <div className="bg-[#0F172A] text-white rounded-xl p-5 relative overflow-hidden shadow-xl border-2 border-[#F59E0B]">
