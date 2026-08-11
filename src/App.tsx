@@ -10,16 +10,28 @@ export function AppContent() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [isDisplayMode, setIsDisplayMode] = useState(false);
 
-  // Check if URL has /display route
+  // Check if URL has /display route (pathname, hash, or search param)
   useEffect(() => {
     const checkDisplayMode = () => {
       const path = window.location.pathname;
-      setIsDisplayMode(path === '/display' || path.includes('/display'));
+      const hash = window.location.hash;
+      const search = window.location.search;
+      setIsDisplayMode(
+        path === '/display' || 
+        path.includes('/display') || 
+        hash === '#/display' || 
+        hash.includes('display') || 
+        search.includes('display')
+      );
     };
 
     checkDisplayMode();
     window.addEventListener('popstate', checkDisplayMode);
-    return () => window.removeEventListener('popstate', checkDisplayMode);
+    window.addEventListener('hashchange', checkDisplayMode);
+    return () => {
+      window.removeEventListener('popstate', checkDisplayMode);
+      window.removeEventListener('hashchange', checkDisplayMode);
+    };
   }, []);
 
   const handleViewLeaderboard = () => {
