@@ -22,12 +22,12 @@ const houseEmblems: Record<HouseId, string> = {
 export const DisplayDashboard: React.FC = () => {
   const { houses, getHousePoints, getHouseMedals, results } = useFestival();
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [isConnected, setIsConnected] = useState(true);
-  const [breakingNews, setBreakingNews] = useState([
+  const [isConnected] = useState(true);
+  const breakingNews = [
     "ASTRA extends lead to 89 points!",
     "New Winner: Anchoring (Cat III) — ASTRA",
     "Next Event: Mohiniyattam — Main Auditorium at 02:00 PM"
-  ]);
+  ];
   const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
   const [categoryFilter, setCategoryFilter] = useState(0);
 
@@ -318,7 +318,7 @@ export const DisplayDashboard: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-6">
-              {recentResults.slice(0, 6).map((result, index) => (
+              {recentResults.slice(0, 6).map((result) => (
                 <div 
                   key={result.id}
                   className="flex items-center gap-4 p-4 rounded-2xl bg-[#FAF8F5] hover:bg-white transition-colors"
