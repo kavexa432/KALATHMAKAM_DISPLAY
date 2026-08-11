@@ -67,7 +67,7 @@ export const Footer: React.FC = () => {
               Ayiroor P.O, Varkala, Thiruvananthapuram, Kerala 695310, India.
             </p>
             <p className="text-xs font-sans-manrope text-gray-400">
-              Phone: +91 94470 12345 / 0470 2695200
+              Phone: +91 90722 88314
             </p>
             <p className="text-xs font-sans-manrope text-gray-400">
               Email: kavexa432@gmail.com
