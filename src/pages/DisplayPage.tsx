@@ -253,7 +253,7 @@ export const DisplayPage: React.FC = () => {
   );
 };
 
-// ─── High-Contrast Broadcast Scores View (Extra Large Legibility & Slow Auto-Scroll) ──
+// ─── High-Contrast Broadcast Scores View (Extra Large Legibility & Auto-Scroll) ──
 
 interface ScoresViewProps {
   standings: any[];
@@ -277,7 +277,7 @@ const ScoresView: React.FC<ScoresViewProps> = ({
   const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isPausedBoundaryRef = useRef(false);
 
-  // Smooth, gentle teleprompter auto-scroll for all published victories (comfortably readable pace)
+  // Smooth teleprompter auto-scroll for all published victories
   useEffect(() => {
     if (!isAutoScrollVictories || isVictoriesHovered) return;
 
@@ -285,7 +285,7 @@ const ScoresView: React.FC<ScoresViewProps> = ({
     if (!container) return;
 
     let lastTime = performance.now();
-    const SCROLL_SPEED = 13; // pixels per second (very gentle & comfortable to read on large displays)
+    const SCROLL_SPEED = 24; // px per second (smooth & easily readable on TV)
 
     const step = (nowTime: number) => {
       if (!container || !isAutoScrollVictories || isVictoriesHovered || isPausedBoundaryRef.current) {
@@ -302,7 +302,7 @@ const ScoresView: React.FC<ScoresViewProps> = ({
         return;
       }
 
-      if (container.scrollTop >= maxScroll - 3) {
+      if (container.scrollTop >= maxScroll - 4) {
         // Reached bottom of victories: Pause for 4 seconds, then smooth-scroll back to top
         isPausedBoundaryRef.current = true;
         setTimeout(() => {
@@ -311,7 +311,7 @@ const ScoresView: React.FC<ScoresViewProps> = ({
             setTimeout(() => {
               isPausedBoundaryRef.current = false;
               lastTime = performance.now();
-            }, 2500); // 2.5s pause at the top
+            }, 2000); // 2s pause at the top
           } else {
             isPausedBoundaryRef.current = false;
           }
@@ -335,7 +335,7 @@ const ScoresView: React.FC<ScoresViewProps> = ({
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
     resumeTimerRef.current = setTimeout(() => {
       setIsVictoriesHovered(false);
-    }, 5000);
+    }, 4500);
   };
 
   const totalPoints = useMemo(() => {
@@ -349,93 +349,93 @@ const ScoresView: React.FC<ScoresViewProps> = ({
         {/* LEFT — 8 cols: Large House Point Cards & Expanded Live Victories Feed */}
         <div className="col-span-12 lg:col-span-8 flex flex-col gap-4 overflow-hidden min-h-0">
 
-          {/* 4 Large House Point Cards with Non-Overlapping Structured Headers */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-shrink-0">
+          {/* 4 Large House Point Cards with Uncut Prominent House Names */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 flex-shrink-0">
             {standings.map((house, index) => {
               const houseId = house.id as HouseId;
               const colorInfo = houseColors[houseId];
               const isLeader = index === 0;
               const rankBadges = [
                 'bg-amber-500 text-white',
-                'bg-slate-500 text-white',
+                'bg-slate-400 text-white',
                 'bg-amber-700 text-white',
-                'bg-slate-700 text-white',
+                'bg-slate-600 text-white',
               ];
               const rankLabels = ['1ST PLACE', '2ND PLACE', '3RD PLACE', '4TH PLACE'];
 
               return (
                 <div
                   key={house.id}
-                  className={`bg-white rounded-2xl p-4 md:p-5 border transition-all shadow-sm flex flex-col justify-between ${
+                  className={`bg-white rounded-2xl p-4 border transition-all shadow-sm flex flex-col justify-between ${
                     isLeader
                       ? 'border-2 border-amber-400 shadow-md ring-2 ring-amber-100'
                       : 'border-slate-200'
                   }`}
                 >
-                  {/* Clean Non-Overlapping Top Header Row */}
                   <div>
-                    <div className="flex items-start justify-between gap-2 mb-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-13 h-13 bg-slate-50 rounded-2xl p-2 border border-slate-200 shrink-0 shadow-xs">
-                          <img
-                            src={houseEmblems[houseId]}
-                            alt={house.name}
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                        <div className="min-w-0">
-                          <h3
-                            className="font-sans-manrope font-black text-xl md:text-2xl uppercase leading-tight tracking-tight truncate"
-                            style={{ color: colorInfo.primary }}
-                          >
-                            {house.name}
-                          </h3>
-                          <p className="text-[11px] text-slate-500 font-semibold truncate">
-                            {house.name === 'ASTRA'
-                              ? 'Virtues Unbound'
-                              : house.name === 'ORION'
-                              ? 'Boundless Depth'
-                              : house.name === 'NOVA'
-                              ? 'Igniting Passion'
-                              : 'Rising Brightest'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Rank Badge - Inline Flex, Never Collides! */}
-                      <div
-                        className={`shrink-0 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs ${rankBadges[index]}`}
+                    {/* Top Row: Rank Badge on Left + Live Delta on Right */}
+                    <div className="flex items-center justify-between gap-1 mb-2.5">
+                      <span
+                        className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${rankBadges[index]}`}
                       >
                         {rankLabels[index]}
+                      </span>
+                      <span className="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                        +{house.recentDelta} pts
+                      </span>
+                    </div>
+
+                    {/* House Row: Big Emblem + FULL UNCUT HOUSE NAME */}
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 bg-slate-50 rounded-2xl p-1.5 border border-slate-200 shrink-0 shadow-xs flex items-center justify-center">
+                        <img
+                          src={houseEmblems[houseId]}
+                          alt={house.name}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <h3
+                          className="font-sans-manrope font-black text-2xl uppercase leading-none tracking-tight whitespace-nowrap"
+                          style={{ color: colorInfo.primary }}
+                        >
+                          {house.name}
+                        </h3>
+                        <p className="text-[11px] text-slate-500 font-semibold truncate leading-tight mt-1">
+                          {house.name === 'ASTRA'
+                            ? 'Virtues Unbound'
+                            : house.name === 'ORION'
+                            ? 'Boundless Depth'
+                            : house.name === 'NOVA'
+                            ? 'Igniting Passion'
+                            : 'Rising Brightest'}
+                        </p>
                       </div>
                     </div>
 
                     {/* Big Bold Points Card */}
-                    <div className="bg-slate-50 rounded-2xl p-3.5 mb-3 border border-slate-200">
+                    <div className="bg-slate-50 rounded-xl p-3 mb-3 border border-slate-200">
                       <div className="flex items-baseline justify-between">
-                        <span className="text-4xl md:text-5xl font-black text-slate-900 tabular-nums tracking-tight">
+                        <span className="text-4xl font-black text-slate-900 tabular-nums tracking-tight">
                           {house.points}
                         </span>
-                        <span className="text-xs md:text-sm font-black text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200">
-                          +{house.recentDelta} pts
+                        <span className="text-[10px] text-slate-500 font-black uppercase tracking-wider">
+                          Official Points
                         </span>
-                      </div>
-                      <div className="text-[11px] text-slate-500 font-black uppercase tracking-wider mt-1">
-                        Official Points
                       </div>
                     </div>
                   </div>
 
                   {/* Medal Counts */}
-                  <div className="flex gap-2 text-center border-t border-slate-100 pt-3">
+                  <div className="flex gap-1.5 text-center border-t border-slate-100 pt-2.5">
                     {[
                       ['🥇 1st', house.medals.gold],
                       ['🥈 2nd', house.medals.silver],
                       ['🥉 3rd', house.medals.bronze],
                     ].map(([lbl, val]) => (
-                      <div key={lbl as string} className="flex-1 bg-slate-50 rounded-xl py-1.5 border border-slate-100">
-                        <div className="font-black text-base md:text-lg text-slate-900 tabular-nums">{val}</div>
-                        <div className="text-[10px] text-slate-500 font-extrabold uppercase">{lbl}</div>
+                      <div key={lbl as string} className="flex-1 bg-slate-50 rounded-xl py-1 border border-slate-100">
+                        <div className="font-black text-base text-slate-900 tabular-nums">{val}</div>
+                        <div className="text-[9px] text-slate-500 font-extrabold uppercase">{lbl}</div>
                       </div>
                     ))}
                   </div>
@@ -444,7 +444,7 @@ const ScoresView: React.FC<ScoresViewProps> = ({
             })}
           </div>
 
-          {/* Expanded Recent Victories Live Grid (Fills Remaining Screen Height & Auto-Scrolls Gently) */}
+          {/* Expanded Recent Victories Live Grid (Fills Remaining Screen Height & Auto-Scrolls) */}
           <div className="bg-white rounded-2xl border border-slate-200 flex-1 overflow-hidden flex flex-col shadow-sm min-h-0">
             <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200 bg-slate-50/90 flex-shrink-0">
               <div className="flex items-center gap-2.5">
@@ -471,7 +471,7 @@ const ScoresView: React.FC<ScoresViewProps> = ({
                   {isAutoScrollVictories ? (
                     <>
                       <Eye className="w-3.5 h-3.5 text-blue-600" />
-                      <span>Auto-Scroll: <strong className="text-blue-700">ON (Gentle)</strong></span>
+                      <span>Auto-Scroll: <strong className="text-blue-700">ON</strong></span>
                     </>
                   ) : (
                     <>
@@ -488,7 +488,7 @@ const ScoresView: React.FC<ScoresViewProps> = ({
               </div>
             </div>
 
-            {/* Scrollable Container with Gentle Teleprompter Auto-Scroll */}
+            {/* Scrollable Container with Smooth Auto-Scroll for Victories */}
             <div
               ref={victoriesScrollRef}
               onMouseEnter={handleVictoriesInteraction}
@@ -517,12 +517,12 @@ const ScoresView: React.FC<ScoresViewProps> = ({
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <div className="flex items-center gap-1.5 min-w-0">
                               <span className="text-lg shrink-0">{posEmoji}</span>
-                              <span className="font-bold text-xs md:text-sm text-slate-900 leading-snug truncate">
+                              <span className="font-bold text-xs text-slate-900 leading-snug truncate">
                                 {result.eventTitle}
                               </span>
                             </div>
                             <span
-                              className={`shrink-0 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                              className={`shrink-0 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
                                 result.position === '1st'
                                   ? 'bg-amber-100 text-amber-800 border border-amber-200'
                                   : 'bg-slate-200 text-slate-700'
@@ -551,7 +551,7 @@ const ScoresView: React.FC<ScoresViewProps> = ({
               {recentResults.length > 0 && (
                 <div className="pt-2 pb-1 text-center flex items-center justify-center gap-2 text-xs font-bold text-slate-400">
                   <RefreshCw className="w-3.5 h-3.5 animate-spin opacity-50" />
-                  <span>Gently auto-scrolling {recentResults.length} verified results</span>
+                  <span>Auto-scrolling {recentResults.length} verified results</span>
                 </div>
               )}
             </div>
@@ -602,7 +602,7 @@ const ScoresView: React.FC<ScoresViewProps> = ({
             </div>
           </div>
 
-          {/* House Leaderboard Table */}
+          {/* House Leaderboard Table - Shows ALL 4 Houses Clearly */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0">
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 bg-slate-50/90 flex-shrink-0">
               <div className="flex items-center gap-2">
@@ -614,16 +614,16 @@ const ScoresView: React.FC<ScoresViewProps> = ({
               <span className="text-xs font-bold text-slate-500">Official Ranks</span>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-3 min-h-0">
+            <div className="p-3 flex-1 flex flex-col justify-around">
               <table className="w-full text-left">
                 <thead>
                   <tr className="text-[11px] text-slate-500 font-black uppercase border-b border-slate-100">
-                    <th className="px-3 py-2.5">Rank</th>
-                    <th className="py-2.5">House</th>
-                    <th className="text-right py-2.5 pr-4">Points</th>
-                    <th className="text-center py-2.5">1st</th>
-                    <th className="text-center py-2.5">2nd</th>
-                    <th className="text-center py-2.5 pr-2">3rd</th>
+                    <th className="px-3 py-2">Rank</th>
+                    <th className="py-2">House</th>
+                    <th className="text-right py-2 pr-4">Points</th>
+                    <th className="text-center py-2">1st</th>
+                    <th className="text-center py-2">2nd</th>
+                    <th className="text-center py-2 pr-2">3rd</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -632,21 +632,21 @@ const ScoresView: React.FC<ScoresViewProps> = ({
                     const colorInfo = houseColors[houseId];
                     const rankBg = [
                       'bg-amber-500 text-white',
-                      'bg-slate-500 text-white',
+                      'bg-slate-400 text-white',
                       'bg-amber-700 text-white',
-                      'bg-slate-700 text-white',
+                      'bg-slate-600 text-white',
                     ][index];
 
                     return (
                       <tr key={house.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-3 py-3">
+                        <td className="px-3 py-2.5">
                           <div
                             className={`w-6 h-6 rounded-md flex items-center justify-center font-black text-xs ${rankBg}`}
                           >
                             {index + 1}
                           </div>
                         </td>
-                        <td className="py-3">
+                        <td className="py-2.5">
                           <div className="flex items-center gap-2.5">
                             <img
                               src={houseEmblems[houseId]}
@@ -657,18 +657,18 @@ const ScoresView: React.FC<ScoresViewProps> = ({
                           </div>
                         </td>
                         <td
-                          className="py-3 text-right font-black text-base md:text-lg pr-4 tabular-nums"
+                          className="py-2.5 text-right font-black text-base md:text-lg pr-4 tabular-nums"
                           style={{ color: colorInfo.primary }}
                         >
                           {house.points}
                         </td>
-                        <td className="py-3 text-center text-sm md:text-base text-slate-900 font-bold">
+                        <td className="py-2.5 text-center text-sm md:text-base text-slate-900 font-bold">
                           {house.medals.gold}
                         </td>
-                        <td className="py-3 text-center text-sm md:text-base text-slate-500 font-medium">
+                        <td className="py-2.5 text-center text-sm md:text-base text-slate-500 font-medium">
                           {house.medals.silver}
                         </td>
-                        <td className="py-3 text-center text-sm md:text-base text-slate-500 pr-2 font-medium">
+                        <td className="py-2.5 text-center text-sm md:text-base text-slate-500 pr-2 font-medium">
                           {house.medals.bronze}
                         </td>
                       </tr>
