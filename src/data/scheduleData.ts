@@ -72,32 +72,39 @@ export const SCHEDULE_DATA: ScheduleEvent[] = [
 ];
 
 // ==========================================
+// ==========================================
 // DAY 2 — Wednesday 19/08/2026
 // Secondary & Primary Section Competitions Begin
+// Stage 1: KALAKELI (HARIHARAN MEMORIAL AUDITORIUM)
 // ==========================================
 export const DAY2_SCHEDULE_DATA: ScheduleEvent[] = [
-  { id: 'd2-1', time: '9:00 AM', title: 'Prayer — School Choir', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  { id: 'd2-2', time: '9:05 AM', title: 'Pooja Dance', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  { id: 'd2-3', time: '9:10 AM', title: '🎉 Secondary & Primary Section Competitions Begin', category: 'Ceremony', stage: 'All Stages', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  // Stage 1: Main Auditorium — Dance Competitions
-  { id: 'd2-s1-1', time: '09:15 AM', title: 'Bharathanatyam (Cat 4)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 1 },
-  { id: 'd2-s1-2', time: '09:25 AM', title: 'Bharathanatyam (Cat 3)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 9 },
-  { id: 'd2-s1-3', time: '11:00 AM', title: 'Bharathanatyam (Cat 2)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 9 },
-  { id: 'd2-s1-4', time: '12:30 PM', title: 'Bharathanatyam (Cat 2 — Boy)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 1 },
-  { id: 'd2-s1-5', time: '12:40 PM', title: 'Kuchipudi (Cat 3)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 6 },
-  { id: 'd2-lb1', time: 'Lunch Break', title: 'LUNCH BREAK', category: 'Break', stage: '', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  { id: 'd2-s1-6', time: '2:00 PM', title: 'Bharathanatyam (Cat 1)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 7 },
-  { id: 'd2-s1-7', time: '3:10 PM', title: 'Mohiniyattam (Cat 2)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 1 },
-  { id: 'd2-s1-8', time: '3:20 PM', title: 'Mohiniyattam (Cat 3)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
-  { id: 'd2-s1-9', time: '4:00 PM', title: 'Folk Dance (Cat 1)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 11 },
-  { id: 'd2-s1-10', time: '5:05 PM', title: 'Folk Dance (Cat 2)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 11 },
-  { id: 'd2-s1-11', time: '6:10 PM', title: 'Folk Dance (Cat 3)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 3 },
+  // Stage 1: Main Auditorium (KALAKELI)
+  { id: 'd2-s1-1', time: '9:00 AM', title: 'Welcome Dance', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
+  { id: 'd2-s1-2', time: '9:05 AM', title: 'Arabic Dance — Std XI Girls', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
+  { id: 'd2-s1-3', time: '9:15 AM', title: 'Folk Dance Competition — (STATES OF INDIA) Std III (HOUSE WISE)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 'House Wise' },
+  { id: 'd2-s1-4', time: '10:00 AM', title: 'Kaikottikali — Std XI (Team 1)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
+  { id: 'd2-s1-5', time: '10:10 AM', title: 'Dance Competition — (HOUSE WISE THEMATIC DANCE Std IV)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 'House Wise' },
+  { id: 'd2-s1-6', time: '10:50 AM', title: 'Mime — Std XI Girls', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
+  { id: 'd2-s1-7', time: '11:00 AM', title: 'Dance Competition — (KAIKOTTIKALI) Std V', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
+  { id: 'd2-s1-8', time: '11:40 AM', title: 'House-Wise Thiruvathira Competition (CATEGORY 3)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
+  { id: 'd2-s1-9', time: '12:15 PM', title: 'Kaikottikali — Std XI (Team 2)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
+  { id: 'd2-lb1', time: '12:30 PM', title: 'LUNCH BREAK', category: 'Break', stage: '', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
+  { id: 'd2-s1-10', time: '1:00 PM', title: 'House-Wise Group Dance Competition (CATEGORY 2)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
+  { id: 'd2-s1-11', time: '1:40 PM', title: 'Entertainment Programme — Std XII Girls (Team 1)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
+  { id: 'd2-s1-12', time: '2:00 PM', title: 'House-Wise Oppana Competition (CATEGORY 3)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
+  { id: 'd2-s1-13', time: '2:40 PM', title: 'Entertainment Programme — Std XII Girls (Team 2)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
+  { id: 'd2-s1-14', time: '3:00 PM', title: 'House-Wise Fusion Dance (Boys) Competition (CATEGORY 2)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
+  { id: 'd2-s1-15', time: '3:40 PM', title: 'Entertainment Programme — Std XII Girls (Team 3)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
+  { id: 'd2-s1-16', time: '4:00 PM', title: 'House-Wise Kaikottikali Competition (CATEGORY 2)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
+  { id: 'd2-s1-17', time: '4:40 PM', title: 'National Anthem', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
+
   // Stage 2: Mini Auditorium — English
   { id: 'd2-s2-1', time: '09:00 AM', title: 'English Recitation (Cat 1)', category: 'English', stage: 'Stage 2: Mini Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 16 },
   { id: 'd2-s2-2', time: '10:00 AM', title: 'English Recitation (Cat 2)', category: 'English', stage: 'Stage 2: Mini Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 31 },
   { id: 'd2-s2-3', time: '11:45 AM', title: 'Elocution (Cat 1)', category: 'English', stage: 'Stage 2: Mini Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 19 },
   { id: 'd2-s2-4', time: '1:30 PM', title: 'Elocution (Cat 2)', category: 'English', stage: 'Stage 2: Mini Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 36 },
   { id: 'd2-s2-5', time: '3:30 PM', title: 'Declamation (Cat 2)', category: 'English', stage: 'Stage 2: Mini Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 8 },
+
   // Stage 3: KG Auditorium — Music
   { id: 'd2-s3-1', time: '09:00 AM', title: 'Light Music (Cat 1 — Common)', category: 'Music', stage: 'Stage 3: KG Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 25 },
   { id: 'd2-s3-2', time: '10:15 AM', title: 'Light Music (Cat 2 Boys)', category: 'Music', stage: 'Stage 3: KG Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 10 },
@@ -113,6 +120,7 @@ export const DAY2_SCHEDULE_DATA: ScheduleEvent[] = [
   { id: 'd2-s3-12', time: '4:00 PM', title: 'Group Song (House-wise Common)', category: 'House Item', stage: 'Stage 3: KG Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
   { id: 'd2-s3-13', time: '4:40 PM', title: 'Patriotic Song (House-wise Common)', category: 'House Item', stage: 'Stage 3: KG Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
   { id: 'd2-s3-14', time: '5:20 PM', title: 'National Anthem (House-wise Common)', category: 'House Item', stage: 'Stage 3: KG Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
+
   // Stage 4: Class VI A — Hindi
   { id: 'd2-s4-1', time: '09:00 AM', title: 'Hindi Recitation (Cat 1)', category: 'Hindi', stage: 'Stage 4: Class VI A', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 13 },
   { id: 'd2-s4-2', time: '10:15 AM', title: 'Hindi Recitation (Cat 2)', category: 'Hindi', stage: 'Stage 4: Class VI A', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 18 },
@@ -120,6 +128,7 @@ export const DAY2_SCHEDULE_DATA: ScheduleEvent[] = [
   { id: 'd2-s4-4', time: '12:00 PM', title: 'Hindi Elocution (Cat 1)', category: 'Hindi', stage: 'Stage 4: Class VI A', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 5 },
   { id: 'd2-s4-5', time: '12:20 PM', title: 'Hindi Elocution (Cat 2)', category: 'Hindi', stage: 'Stage 4: Class VI A', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 14 },
   { id: 'd2-s4-6', time: '1:20 PM', title: 'Hindi Extempore (Cat 4)', category: 'Hindi', stage: 'Stage 4: Class VI A', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 2 },
+
   // Stage 5: Class IX A — Malayalam & Sanskrit
   { id: 'd2-s5-1', time: '09:00 AM', title: 'Malayalam Recitation (Cat 1)', category: 'Malayalam', stage: 'Stage 5: Class IX A', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 28 },
   { id: 'd2-s5-2', time: '10:30 AM', title: 'Malayalam Recitation (Cat 2)', category: 'Malayalam', stage: 'Stage 5: Class IX A', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 25 },
@@ -131,6 +140,7 @@ export const DAY2_SCHEDULE_DATA: ScheduleEvent[] = [
   { id: 'd2-s5-8', time: '4:30 PM', title: 'Sanskrit Recitation (Cat 3)', category: 'Sanskrit', stage: 'Stage 5: Class IX A', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 6 },
   { id: 'd2-s5-9', time: '5:00 PM', title: 'Sanskrit Recitation (Cat 4)', category: 'Sanskrit', stage: 'Stage 5: Class IX A', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 1 },
   { id: 'd2-s5-10', time: '5:05 PM', title: 'Sanskrit Recitation (Cat 2)', category: 'Sanskrit', stage: 'Stage 5: Class IX A', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 10 },
+
   // Stage 6: Kids Auditorium — Mono Act, Mappilappattu, Arabic
   { id: 'd2-s6-1', time: '09:00 AM', title: 'Mono Act (Cat 3)', category: 'Drama', stage: 'Stage 6: Kids Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 3 },
   { id: 'd2-s6-2', time: '09:15 AM', title: 'Mono Act (Cat 2)', category: 'Drama', stage: 'Stage 6: Kids Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 7 },
@@ -143,13 +153,15 @@ export const DAY2_SCHEDULE_DATA: ScheduleEvent[] = [
   { id: 'd2-s6-9', time: '2:15 PM', title: 'Arabic Recitation (Cat 4)', category: 'Arabic', stage: 'Stage 6: Kids Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 2 },
   { id: 'd2-s6-10', time: '2:30 PM', title: 'Arabic Recitation (Cat 3)', category: 'Arabic', stage: 'Stage 6: Kids Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
   { id: 'd2-s6-11', time: '3:00 PM', title: 'Arabic Recitation (Cat 2)', category: 'Arabic', stage: 'Stage 6: Kids Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 3 },
+
   // Stage 7: Computer Lab — PPT & Digital Painting
   { id: 'd2-s7-1', time: '09:00 AM', title: 'PPT (Cat 2)', category: 'Computer', stage: 'Stage 7: Computer Lab', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 8 },
   { id: 'd2-s7-2', time: '09:00 AM', title: 'PPT (Cat 3)', category: 'Computer', stage: 'Stage 7: Computer Lab', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 8 },
   { id: 'd2-s7-3', time: '09:00 AM', title: 'PPT (Cat 4)', category: 'Computer', stage: 'Stage 7: Computer Lab', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
   { id: 'd2-s7-4', time: '12:00 PM', title: 'Digital Painting (Cat 2)', category: 'Computer', stage: 'Stage 7: Computer Lab', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
   { id: 'd2-s7-5', time: '12:00 PM', title: 'Digital Painting (Cat 3)', category: 'Computer', stage: 'Stage 7: Computer Lab', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  // Anchoring, Turn Coat, Western Music
+
+  // Stage 2: Mini Auditorium — Anchoring, Turn Coat, Western Music
   { id: 'd2-s2-anc1', time: '1:00 PM', title: 'Anchoring (Cat 3)', category: 'English', stage: 'Stage 2: Mini Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 8 },
   { id: 'd2-s2-anc2', time: '1:30 PM', title: 'Anchoring (Cat 4)', category: 'English', stage: 'Stage 2: Mini Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
   { id: 'd2-s2-anc3', time: '2:00 PM', title: 'Anchoring (Cat 2)', category: 'English', stage: 'Stage 2: Mini Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 8 },
@@ -161,30 +173,28 @@ export const DAY2_SCHEDULE_DATA: ScheduleEvent[] = [
 // ==========================================
 // DAY 3 — Thursday 20/08/2026
 // House-wise Competitions (Secondary) + Valedictory
+// Stage 1: KALAKELI (HARIHARAN MEMORIAL AUDITORIUM)
 // ==========================================
 export const DAY3_SCHEDULE_DATA: ScheduleEvent[] = [
-  { id: 'd3-1', time: '9:00 AM', title: 'Prayer — School Choir', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-2', time: '9:05 AM', title: 'Curtain Raiser', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-3', time: '9:10 AM', title: '🏆 House-wise Competitions for Secondary Section Begin', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-4', time: '9:00 AM', title: 'Entertainment Programme — XII D Boys', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-5', time: '9:15 AM', title: 'Keyboard (Entertainment Item)', category: 'Instrumental', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-6', time: '9:20 AM', title: 'Mime Competition — Category 3', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-7', time: '9:40 AM', title: 'Entertainment Programme — Fusion Dance (XII A Boys)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-8', time: '10:00 AM', title: 'Mime Competition — Category 2', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-9', time: '10:20 AM', title: 'Entertainment Programme — Fusion Dance (XII B Boys)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-10', time: '10:40 AM', title: 'House-Wise One Act Play Competition (Common Event)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', participants: 4 },
-  { id: 'd3-11', time: '12:00 PM', title: 'Entertainment Programme — Fusion Dance (XII C Boys)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
+  { id: 'd3-1', time: '9:00 AM', title: 'Entertainment Programme — XII D Boys', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
+  { id: 'd3-2', time: '9:15 AM', title: 'Keyboard (An Entertainment Item)', category: 'Instrumental', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
+  { id: 'd3-3', time: '9:20 AM', title: 'Mime Competition — Category 3', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
+  { id: 'd3-4', time: '9:40 AM', title: 'Entertainment Programme — (Fusion Dance) XII A Boys', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
+  { id: 'd3-5', time: '10:00 AM', title: 'Mime Competition — Category 2', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
+  { id: 'd3-6', time: '10:20 AM', title: 'Entertainment Programme — (Fusion Dance) XII B Boys', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
+  { id: 'd3-7', time: '10:40 AM', title: 'House-Wise One Act Play Competition (Common Event)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', participants: 4 },
+  { id: 'd3-8', time: '12:00 PM', title: 'Entertainment Programme — (Fusion Dance) XII C Boys', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
   { id: 'd3-lb', time: '12:20 PM', title: 'LUNCH BREAK', category: 'Break', stage: '', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
   // Valedictory Function at 2:00 PM
-  { id: 'd3-val', time: '2:00 PM', title: '🎓 Valedictory Function Begins', category: 'Ceremony', stage: 'School Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-v1', time: '2:00 PM', title: 'Prayer — School Choir', category: 'Ceremony', stage: 'School Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-v2', time: '2:05 PM', title: 'Welcome Address', category: 'Ceremony', stage: 'School Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', coordinator: 'Dr. Pooja S (Principal)' },
-  { id: 'd3-v3', time: '2:10 PM', title: 'Presidential Address', category: 'Ceremony', stage: 'School Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', coordinator: 'Sri. Unnikrishnan Vishakam (PTA President)' },
-  { id: 'd3-v4', time: '2:20 PM', title: 'Address by Chief Guest', category: 'Ceremony', stage: 'School Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', coordinator: 'Mrs. Nisha Sarangh (Cine-Serial Artist)' },
-  { id: 'd3-v5', time: '2:35 PM', title: 'Honouring the Chief Guest', category: 'Ceremony', stage: 'School Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', coordinator: 'Dr. P K Sukumaran (Trust Secretary)' },
-  { id: 'd3-v6', time: '2:45 PM', title: 'Prize Distribution', category: 'Ceremony', stage: 'School Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', coordinator: 'Chief Guest — Mrs. Nisha Sarangh' },
-  { id: 'd3-v7', time: '3:30 PM', title: 'Vote of Thanks', category: 'Ceremony', stage: 'School Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', coordinator: 'Mrs. Starcy R P (Programme Convenor)' },
-  { id: 'd3-v8', time: '3:40 PM', title: 'National Anthem', category: 'Ceremony', stage: 'School Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
+  { id: 'd3-val', time: '2:00 PM', title: 'Valedictory Function Begins', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
+  { id: 'd3-v1', time: '2:00 PM', title: 'Prayer — School Choir', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
+  { id: 'd3-v2', time: '2:05 PM', title: 'Welcome Address', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', coordinator: 'Dr. Pooja S (Principal)' },
+  { id: 'd3-v3', time: '2:10 PM', title: 'Presidential Address', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', coordinator: 'Sri. Unnikrishnan Vishakam (PTA President)' },
+  { id: 'd3-v4', time: '2:20 PM', title: 'Address by Chief Guest', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', coordinator: 'Mrs. Nisha Sarangh (Cine-Serial Artist)' },
+  { id: 'd3-v5', time: '2:35 PM', title: 'Honouring the Chief Guest', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', coordinator: 'Dr. P K Sukumaran (Trust Secretary)' },
+  { id: 'd3-v6', time: '2:45 PM', title: 'Prize Distribution', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', coordinator: 'Chief Guest — Mrs. Nisha Sarangh' },
+  { id: 'd3-v7', time: '3:30 PM', title: 'Vote of Thanks', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', coordinator: 'Mrs. Starcy R P (Programme Convenor)' },
+  { id: 'd3-v8', time: '3:40 PM', title: 'National Anthem', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
 ];
 
 // ==========================================

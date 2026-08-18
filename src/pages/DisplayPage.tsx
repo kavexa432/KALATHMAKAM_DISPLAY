@@ -69,17 +69,26 @@ export const DisplayPage: React.FC = () => {
   // Live Marquee Ticker items
   const tickerItems = useMemo(() => {
     const pubCount = results.filter((r) => r.status === 'Published').length;
+    if (isConcluded) {
+      return [
+        `DAY 1 CONCLUDED • DAY 2 COMPETITIONS BEGIN TOMORROW AT 09:00 AM`,
+        `STAGE 1 (KALAKELI AUDITORIUM): WELCOME DANCE AT 09:00 AM & ARABIC DANCE AT 09:05 AM`,
+        `HOUSE-WISE COMPETITIONS: FOLK DANCE (STD III), THEMATIC DANCE (STD IV), THIRUVATHIRA, OPPANA & FUSION DANCE`,
+        `4 HOUSES COMPETING: ASTRA • NOVA • ORION • VEGA`,
+        leaderHouse ? `CURRENT LEADER: ${leaderHouse.name} (${leaderHouse.points} PTS)` : `KALATHMAKAM 2K26 IN FULL SWING`,
+        `${pubCount > 0 ? pubCount : 349} RESULTS PUBLISHED`,
+        `OFFICIAL KALATHMAKAM 2K26 LIVE DISPLAY`,
+      ];
+    }
     return [
       `${pubCount > 0 ? pubCount : 349} RESULTS PUBLISHED`,
       `4 HOUSES COMPETING (ASTRA • NOVA • ORION • VEGA)`,
-      `43 STAGE EVENTS SCHEDULED TODAY`,
-      `S1 PRAYER STARTS AT 09:00 AM`,
+      `STAGE 1 KALAKELI AUDITORIUM ACTIVE`,
       leaderHouse ? `CURRENT LEADER: ${leaderHouse.name} (${leaderHouse.points} PTS)` : `KALATHMAKAM 2K26 IN FULL SWING`,
       `65+ TALENTED CONTESTANTS`,
-      `STAGE 1 KALAKELI AUDITORIUM ACTIVE`,
       `OFFICIAL SCORING & LIVE BROADCAST ACTIVE`,
     ];
-  }, [leaderHouse, results]);
+  }, [leaderHouse, results, isConcluded]);
 
   // All published / verified results for scores feed
   const recentResults = useMemo(() => {

@@ -41,15 +41,28 @@ function parseTimeMinutes(t: string): number | null {
   return h * 60 + min;
 }
 
-const FEST_DATES = Object.keys(DAY_DATE_MAP).sort();
+export const FEST_DATES = Object.keys(DAY_DATE_MAP).sort();
 
-function resolveDayLabel(key: string) {
-  if (DAY_DATE_MAP[key]) return { label: DAY_DATE_MAP[key], isToday: true };
-  if (key < FEST_DATES[0]) return { label: DAY_DATE_MAP[FEST_DATES[0]], isToday: false };
-  if (key > FEST_DATES[FEST_DATES.length - 1])
-    return { label: DAY_DATE_MAP[FEST_DATES[FEST_DATES.length - 1]], isToday: false };
-  const next = FEST_DATES.find((d) => d > key);
-  return { label: DAY_DATE_MAP[next ?? FEST_DATES[0]], isToday: false };
+export function resolveDefaultDay(now: Date): string {
+  const festDates = Object.keys(DAY_DATE_MAP).sort();
+  const key = toDateKey(now);
+  const hour = now.getHours();
+  const min = now.getMinutes();
+  const isEveningConcluded = hour > 18 || (hour === 18 && min >= 30);
+
+  if (DAY_DATE_MAP[key]) {
+    if (isEveningConcluded) {
+      const nextDate = festDates.find((d) => d > key);
+      if (nextDate && DAY_DATE_MAP[nextDate]) {
+        return DAY_DATE_MAP[nextDate];
+      }
+    }
+    return DAY_DATE_MAP[key];
+  }
+  if (key < festDates[0]) return DAY_DATE_MAP[festDates[0]];
+  if (key > festDates[festDates.length - 1]) return DAY_DATE_MAP[festDates[festDates.length - 1]];
+  const next = festDates.find((d) => d > key);
+  return DAY_DATE_MAP[next ?? festDates[0]];
 }
 
 // ─── Category Color Map (High-Legibility Light Theme) ─────────────────────────
@@ -97,6 +110,10 @@ const PROGRESS_INTERVAL_MS = 50;
 export const LiveScheduleBoard: React.FC = () => {
   const [now, setNow] = useState(nowIST());
 
+  // Day Selection State (Smart defaults to tomorrow if today is concluded)
+  const defaultDay = useMemo(() => resolveDefaultDay(now), [now]);
+  const [selectedDay, setSelectedDay] = useState<string>(defaultDay);
+
   // Rotation & Filter States
   const [stageIndex, setStageIndex] = useState(0);
   const [autoPlay, setAutoPlay] = useState(true);
@@ -125,7 +142,16 @@ export const LiveScheduleBoard: React.FC = () => {
 
   const todayKey = toDateKey(now);
   const nowMin = now.getHours() * 60 + now.getMinutes();
-  const { label: dayLabel, isToday } = resolveDayLabel(todayKey);
+
+  // Selected Day & Status calculations
+  const dayLabel = selectedDay;
+  const isActualToday = selectedDay === DAY_DATE_MAP[todayKey];
+  const isToday = isActualToday && (now.getHours() < 19 && now.getHours() >= 6);
+  const isTomorrow = useMemo(() => {
+    const tmr = new Date(now);
+    tmr.setDate(tmr.getDate() + 1);
+    return selectedDay === DAY_DATE_MAP[toDateKey(tmr)];
+  }, [selectedDay, now]);
 
   // Format friendly date string
   const friendlyDate = useMemo(() => {
@@ -369,17 +395,22 @@ export const LiveScheduleBoard: React.FC = () => {
     <div className="h-full flex flex-col bg-[#F8FAFC] text-slate-900 font-sans-manrope overflow-hidden select-none">
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          1. SUBHEADER: STATUS EYEBROW + DAY TITLE + ROTATION CONTROLS
+          1. SUBHEADER: STATUS EYEBROW + DAY TABS + ROTATION CONTROLS
       ═══════════════════════════════════════════════════════════════════════ */}
-      <div className="flex-shrink-0 bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between gap-4">
+      <div className="flex-shrink-0 bg-white border-b border-slate-200 px-6 py-2.5 flex items-center justify-between gap-4 flex-wrap">
         
-        {/* Left: Hierarchy Title */}
-        <div>
+        {/* Left: Hierarchy Title & Status */}
+        <div className="min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             {isToday ? (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-50 border border-red-200 text-[10px] font-extrabold uppercase tracking-widest text-red-600">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                 Live Festival Schedule
+              </span>
+            ) : isTomorrow ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-[10px] font-extrabold uppercase tracking-widest text-blue-700">
+                <Clock className="w-3 h-3 text-blue-600" />
+                Tomorrow's Schedule
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[10px] font-extrabold uppercase tracking-widest text-amber-700">
@@ -388,16 +419,63 @@ export const LiveScheduleBoard: React.FC = () => {
               </span>
             )}
             <span className="text-[11px] text-slate-500 font-medium">
-              {isToday ? '• Real-time stage tracking active' : '• Live tracking activates on festival day'}
+              {isToday
+                ? '• Real-time stage tracking active'
+                : isTomorrow
+                ? '• Showing full program agenda for tomorrow'
+                : '• Live tracking activates on festival day'}
             </span>
           </div>
 
-          <h2 className="font-serif-cormorant text-2xl font-bold text-slate-900 tracking-wide leading-tight">
-            {dayLabel.split(' — ')[1] ?? dayLabel}
-            <span className="font-sans-manrope text-xs font-bold text-slate-500 ml-3 uppercase tracking-wider">
-              {friendlyDate}
+          <h2 className="font-serif-cormorant text-2xl font-bold text-slate-900 tracking-wide leading-tight flex items-baseline gap-2">
+            <span>{dayLabel.split(' — ')[1] ?? dayLabel}</span>
+            <span className="font-sans-manrope text-xs font-bold text-slate-500 uppercase tracking-wider">
+              ({friendlyDate})
             </span>
           </h2>
+        </div>
+
+        {/* Center: Interactive Day Selector Tabs */}
+        <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
+          {FEST_DATES.map((dateKey, idx) => {
+            const label = DAY_DATE_MAP[dateKey];
+            const isSelected = selectedDay === label;
+            const isTmr = (() => {
+              const tmr = new Date(now);
+              tmr.setDate(tmr.getDate() + 1);
+              return dateKey === toDateKey(tmr);
+            })();
+            const isActToday = dateKey === todayKey;
+
+            return (
+              <button
+                key={dateKey}
+                onClick={() => {
+                  setSelectedDay(label);
+                  setManualStage(null);
+                  setStageIndex(0);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-white text-slate-900 shadow-xs border border-slate-200 font-black'
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-white/60 font-bold'
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                <span>{`Day ${idx + 1}: ${label.split(' — ')[0].split(' ')[0]} ${label.split(' — ')[0].split(' ')[1]}`}</span>
+                {isTmr && (
+                  <span className="text-[9px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-black uppercase tracking-wider">
+                    Tomorrow
+                  </span>
+                )}
+                {isActToday && (
+                  <span className="text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded font-black uppercase tracking-wider">
+                    Today
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Right: Stage count + Auto-cycle controller */}
@@ -558,14 +636,22 @@ export const LiveScheduleBoard: React.FC = () => {
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700">
                       <Clock className="w-3 h-3 text-blue-600" />
                       <span className="text-[10px] font-black uppercase tracking-widest">
-                        {heroEvent.liveStatus === 'next' ? 'Next Up' : 'First Event'}
+                        {isTomorrow
+                          ? 'Opening Event Tomorrow'
+                          : heroEvent.liveStatus === 'next'
+                          ? 'Next Up'
+                          : 'Opening Event'}
                       </span>
                     </div>
                   )}
 
-                  {countdown && (
+                  {countdown ? (
                     <span className="text-[11px] font-black text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full uppercase tracking-wide">
                       Starts in {countdown}
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full uppercase tracking-wide">
+                      {isTomorrow ? 'Tomorrow' : 'Upcoming'}
                     </span>
                   )}
                 </div>
