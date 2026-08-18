@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DAYS_LIST, DAY_DATE_MAP, SCHEDULE_DATA, DAY2_SCHEDULE_DATA, DAY3_SCHEDULE_DATA, PREFEST_SCHEDULE_DATA } from '../data/scheduleData';
+import { DAYS_LIST, SCHEDULE_DATA, DAY2_SCHEDULE_DATA, DAY3_SCHEDULE_DATA, PREFEST_SCHEDULE_DATA } from '../data/scheduleData';
 import { resolveDefaultDay } from './LiveScheduleBoard';
 import { Clock, MapPin, CheckCircle, Radio, Calendar, ChevronDown } from 'lucide-react';
 
