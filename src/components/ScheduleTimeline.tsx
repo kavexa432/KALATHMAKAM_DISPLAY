@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
-import { DAYS_LIST, SCHEDULE_DATA, DAY2_SCHEDULE_DATA, DAY3_SCHEDULE_DATA, PREFEST_SCHEDULE_DATA } from '../data/scheduleData';
+import { DAYS_LIST, DAY_DATE_MAP, SCHEDULE_DATA, DAY2_SCHEDULE_DATA, DAY3_SCHEDULE_DATA, PREFEST_SCHEDULE_DATA } from '../data/scheduleData';
+import { resolveDefaultDay } from './LiveScheduleBoard';
 import { Clock, MapPin, CheckCircle, Radio, Calendar, ChevronDown } from 'lucide-react';
 
 export const ScheduleTimeline: React.FC = () => {
-  const [activeDay, setActiveDay] = useState<string>(DAYS_LIST[0]);
+  const [activeDay, setActiveDay] = useState<string>(() => {
+    try {
+      return resolveDefaultDay(new Date());
+    } catch {
+      return DAYS_LIST[0];
+    }
+  });
   const [activeStage, setActiveStage] = useState<string>('All Venues');
   const [sessionFilter, setSessionFilter] = useState<'Morning' | 'Afternoon' | 'All'>('Morning');
   const [expandedId, setExpandedId] = useState<string | null>(null);
