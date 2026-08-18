@@ -12,8 +12,8 @@ export interface ScheduleEvent {
 
 export const DAYS_LIST = [
   'Tue 18/08 — Inauguration Day',
-  'Wed 19/08 — Competitions Day 1',
-  'Thu 20/08 — Competitions Day 2 & Valedictory',
+  'Wed 19/08 — Competitions Day',
+  'Thu 20/08 — Competitions & Valedictory',
   'Pre-Fest (Completed)',
 ] as const;
 
@@ -78,24 +78,24 @@ export const SCHEDULE_DATA: ScheduleEvent[] = [
 // Stage 1: KALAKELI (HARIHARAN MEMORIAL AUDITORIUM)
 // ==========================================
 export const DAY2_SCHEDULE_DATA: ScheduleEvent[] = [
-  { id: 'd2-1', time: '9:00 AM', title: 'Welcome Dance', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  { id: 'd2-2', time: '9:05 AM', title: 'Arabic Dance — Std XI Girls', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  { id: 'd2-3', time: '9:15 AM', title: 'Folk Dance Competition — (STATES OF INDIA) Std III (HOUSE WISE)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 'House Wise' },
-  { id: 'd2-4', time: '10:00 AM', title: 'Kaikottikali — Std XI (Team 1)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  { id: 'd2-5', time: '10:10 AM', title: 'Dance Competition — (HOUSE WISE THEMATIC DANCE Std IV)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 'House Wise' },
-  { id: 'd2-6', time: '10:50 AM', title: 'Mime — Std XI Girls', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  { id: 'd2-7', time: '11:00 AM', title: 'Dance Competition — (KAIKOTTIKALI) Std V', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  { id: 'd2-8', time: '11:40 AM', title: 'House-Wise Thiruvathira Competition (CATEGORY 3)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
-  { id: 'd2-9', time: '12:15 PM', title: 'Kaikottikali — Std XI (Team 2)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  { id: 'd2-lb', time: '12:30 PM', title: 'LUNCH BREAK', category: 'Break', stage: '', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  { id: 'd2-10', time: '1:00 PM', title: 'House-Wise Group Dance Competition (CATEGORY 2)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
-  { id: 'd2-11', time: '1:40 PM', title: 'Entertainment Programme — Std XII Girls (Team 1)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  { id: 'd2-12', time: '2:00 PM', title: 'House-Wise Oppana Competition (CATEGORY 3)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
-  { id: 'd2-13', time: '2:40 PM', title: 'Entertainment Programme — Std XII Girls (Team 2)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  { id: 'd2-14', time: '3:00 PM', title: 'House-Wise Fusion Dance (Boys) Competition (CATEGORY 2)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
-  { id: 'd2-15', time: '3:40 PM', title: 'Entertainment Programme — Std XII Girls (Team 3)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
-  { id: 'd2-16', time: '4:00 PM', title: 'House-Wise Kaikottikali Competition (CATEGORY 2)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming', participants: 4 },
-  { id: 'd2-17', time: '4:40 PM', title: 'National Anthem', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day 1', status: 'Upcoming' },
+  { id: 'd2-1', time: '9:00 AM', title: 'Welcome Dance', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming' },
+  { id: 'd2-2', time: '9:05 AM', title: 'Arabic Dance — Std XI Girls', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming' },
+  { id: 'd2-3', time: '9:15 AM', title: 'Folk Dance Competition — (STATES OF INDIA) Std III (HOUSE WISE)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming', participants: 'House Wise' },
+  { id: 'd2-4', time: '10:00 AM', title: 'Kaikottikali — Std XI (Team 1)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming' },
+  { id: 'd2-5', time: '10:10 AM', title: 'Dance Competition — (HOUSE WISE THEMATIC DANCE Std IV)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming', participants: 'House Wise' },
+  { id: 'd2-6', time: '10:50 AM', title: 'Mime — Std XI Girls', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming' },
+  { id: 'd2-7', time: '11:00 AM', title: 'Dance Competition — (KAIKOTTIKALI) Std V', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming' },
+  { id: 'd2-8', time: '11:40 AM', title: 'House-Wise Thiruvathira Competition (CATEGORY 3)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming', participants: 4 },
+  { id: 'd2-9', time: '12:15 PM', title: 'Kaikottikali — Std XI (Team 2)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming' },
+  { id: 'd2-lb', time: '12:30 PM', title: 'LUNCH BREAK', category: 'Break', stage: '', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming' },
+  { id: 'd2-10', time: '1:00 PM', title: 'House-Wise Group Dance Competition (CATEGORY 2)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming', participants: 4 },
+  { id: 'd2-11', time: '1:40 PM', title: 'Entertainment Programme — Std XII Girls (Team 1)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming' },
+  { id: 'd2-12', time: '2:00 PM', title: 'House-Wise Oppana Competition (CATEGORY 3)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming', participants: 4 },
+  { id: 'd2-13', time: '2:40 PM', title: 'Entertainment Programme — Std XII Girls (Team 2)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming' },
+  { id: 'd2-14', time: '3:00 PM', title: 'House-Wise Fusion Dance (Boys) Competition (CATEGORY 2)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming', participants: 4 },
+  { id: 'd2-15', time: '3:40 PM', title: 'Entertainment Programme — Std XII Girls (Team 3)', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming' },
+  { id: 'd2-16', time: '4:00 PM', title: 'House-Wise Kaikottikali Competition (CATEGORY 2)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming', participants: 4 },
+  { id: 'd2-17', time: '4:40 PM', title: 'National Anthem', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Wed 19/08 — Competitions Day', status: 'Upcoming' },
 ];
 
 // ==========================================
@@ -103,16 +103,16 @@ export const DAY2_SCHEDULE_DATA: ScheduleEvent[] = [
 // Stage 1: KALAKELI (HARIHARAN MEMORIAL AUDITORIUM)
 // ==========================================
 export const DAY3_SCHEDULE_DATA: ScheduleEvent[] = [
-  { id: 'd3-1', time: '9:00 AM', title: 'Entertainment Programme — XII D Boys', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-2', time: '9:15 AM', title: 'Keyboard (An Entertainment Item)', category: 'Instrumental', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-3', time: '9:20 AM', title: 'Mime Competition — Category 3', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-4', time: '9:40 AM', title: 'Entertainment Programme — (Fusion Dance) XII A Boys', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-5', time: '10:00 AM', title: 'Mime Competition — Category 2', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-6', time: '10:20 AM', title: 'Entertainment Programme — (Fusion Dance) XII B Boys', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-7', time: '10:40 AM', title: 'House-Wise One Act Play Competition (Common Event)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming', participants: 4 },
-  { id: 'd3-8', time: '12:00 PM', title: 'Entertainment Programme — (Fusion Dance) XII C Boys', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-lb', time: '12:20 PM', title: 'LUNCH BREAK', category: 'Break', stage: '', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
-  { id: 'd3-val', time: '2:00 PM', title: 'Valedictory Function', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions Day 2 & Valedictory', status: 'Upcoming' },
+  { id: 'd3-1', time: '9:00 AM', title: 'Entertainment Programme — XII D Boys', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions & Valedictory', status: 'Upcoming' },
+  { id: 'd3-2', time: '9:15 AM', title: 'Keyboard (An Entertainment Item)', category: 'Instrumental', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions & Valedictory', status: 'Upcoming' },
+  { id: 'd3-3', time: '9:20 AM', title: 'Mime Competition — Category 3', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions & Valedictory', status: 'Upcoming' },
+  { id: 'd3-4', time: '9:40 AM', title: 'Entertainment Programme — (Fusion Dance) XII A Boys', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions & Valedictory', status: 'Upcoming' },
+  { id: 'd3-5', time: '10:00 AM', title: 'Mime Competition — Category 2', category: 'Drama', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions & Valedictory', status: 'Upcoming' },
+  { id: 'd3-6', time: '10:20 AM', title: 'Entertainment Programme — (Fusion Dance) XII B Boys', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions & Valedictory', status: 'Upcoming' },
+  { id: 'd3-7', time: '10:40 AM', title: 'House-Wise One Act Play Competition (Common Event)', category: 'House Item', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions & Valedictory', status: 'Upcoming', participants: 4 },
+  { id: 'd3-8', time: '12:00 PM', title: 'Entertainment Programme — (Fusion Dance) XII C Boys', category: 'Dance', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions & Valedictory', status: 'Upcoming' },
+  { id: 'd3-lb', time: '12:20 PM', title: 'LUNCH BREAK', category: 'Break', stage: '', day: 'Thu 20/08 — Competitions & Valedictory', status: 'Upcoming' },
+  { id: 'd3-val', time: '2:00 PM', title: 'Valedictory Function', category: 'Ceremony', stage: 'Stage 1: Main Auditorium', day: 'Thu 20/08 — Competitions & Valedictory', status: 'Upcoming' },
 ];
 
 // ==========================================
@@ -145,6 +145,6 @@ export const ALL_SCHEDULE_DATA: ScheduleEvent[] = [
 // ==========================================
 export const DAY_DATE_MAP: Record<string, string> = {
   '2026-08-18': 'Tue 18/08 — Inauguration Day',
-  '2026-08-19': 'Wed 19/08 — Competitions Day 1',
-  '2026-08-20': 'Thu 20/08 — Competitions Day 2 & Valedictory',
+  '2026-08-19': 'Wed 19/08 — Competitions Day',
+  '2026-08-20': 'Thu 20/08 — Competitions & Valedictory',
 };
