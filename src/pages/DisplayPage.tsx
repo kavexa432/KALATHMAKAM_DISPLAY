@@ -1,10 +1,22 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Trophy, TrendingUp, Crown, Calendar, Sparkles, Eye, Pause, RefreshCw } from 'lucide-react';
+import {
+  Trophy,
+  Crown,
+  Calendar,
+  Sparkles,
+  Eye,
+  Pause,
+  RefreshCw,
+  Clock,
+  MapPin,
+  Radio,
+  ChevronRight,
+} from 'lucide-react';
 import { useFestival } from '../shared/context/FestivalContext';
 import { houseColors } from '../shared/tokens/designTokens';
 import type { HouseId } from '../shared/types/festivalTypes';
-import { LiveScheduleBoard } from '../components/LiveScheduleBoard';
-import { DAY_DATE_MAP } from '../data/scheduleData';
+import { LiveScheduleBoard, resolveDefaultDay, getCatStyle } from '../components/LiveScheduleBoard';
+import { DAY_DATE_MAP, ALL_SCHEDULE_DATA } from '../data/scheduleData';
 
 import vegaEmblem  from '../assets/houses/vega.png';
 import novaEmblem  from '../assets/houses/nova.png';
@@ -240,6 +252,7 @@ export const DisplayPage: React.FC = () => {
           leadDiff={leadDiff}
           recentResults={recentResults}
           currentTime={currentTime}
+          onViewSchedule={() => setActiveView('schedule')}
         />
       )}
 
@@ -262,6 +275,19 @@ export const DisplayPage: React.FC = () => {
   );
 };
 
+// ─── Time Helper ────────────────────────────────────────────────────────────────
+
+function parseTimeMinutes(t: string): number | null {
+  const m = t.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!m) return null;
+  let h = parseInt(m[1], 10);
+  const min = parseInt(m[2], 10);
+  const ap = m[3].toUpperCase();
+  if (ap === 'AM' && h === 12) h = 0;
+  if (ap === 'PM' && h !== 12) h += 12;
+  return h * 60 + min;
+}
+
 // ─── High-Contrast Broadcast Scores View (Extra Large Legibility & Auto-Scroll) ──
 
 interface ScoresViewProps {
@@ -270,6 +296,7 @@ interface ScoresViewProps {
   leadDiff: number;
   recentResults: any[];
   currentTime: Date;
+  onViewSchedule?: () => void;
 }
 
 const ScoresView: React.FC<ScoresViewProps> = ({
@@ -278,6 +305,7 @@ const ScoresView: React.FC<ScoresViewProps> = ({
   leadDiff,
   recentResults,
   currentTime,
+  onViewSchedule,
 }) => {
   const victoriesScrollRef = useRef<HTMLDivElement>(null);
   const [isAutoScrollVictories, setIsAutoScrollVictories] = useState(true);
@@ -285,6 +313,41 @@ const ScoresView: React.FC<ScoresViewProps> = ({
   const scrollTimerRef = useRef<number | null>(null);
   const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isPausedBoundaryRef = useRef(false);
+
+  // Active Day & Schedule Data for the TV Display
+  const activeDay = useMemo(() => resolveDefaultDay(currentTime), [currentTime]);
+
+  const scheduleEvents = useMemo(() => {
+    const nowMin = currentTime.getHours() * 60 + currentTime.getMinutes();
+    const todayKey = `${currentTime.getFullYear()}-${String(currentTime.getMonth() + 1).padStart(2, '0')}-${String(currentTime.getDate()).padStart(2, '0')}`;
+    const isActualToday = activeDay === DAY_DATE_MAP[todayKey];
+    const isTodayTime = isActualToday && (currentTime.getHours() < 19 && currentTime.getHours() >= 6);
+
+    return ALL_SCHEDULE_DATA
+      .filter((e) => e.day === activeDay && e.category !== 'Break')
+      .map((e) => {
+        const startMin = parseTimeMinutes(e.time);
+        let liveStatus: 'live' | 'next' | 'done' | 'upcoming' = 'upcoming';
+        if (isTodayTime && startMin !== null) {
+          if (nowMin > startMin + 25) {
+            liveStatus = 'done';
+          } else if (nowMin >= startMin) {
+            liveStatus = 'live';
+          } else if (startMin - nowMin <= 30) {
+            liveStatus = 'next';
+          }
+        }
+        return { ...e, startMin, liveStatus };
+      })
+      .sort((a, b) => (a.startMin ?? 9999) - (b.startMin ?? 9999));
+  }, [activeDay, currentTime]);
+
+  const scheduleScrollRef = useRef<HTMLDivElement>(null);
+  const [isAutoScrollSchedule, setIsAutoScrollSchedule] = useState(true);
+  const [isScheduleHovered, setIsScheduleHovered] = useState(false);
+  const scheduleScrollTimerRef = useRef<number | null>(null);
+  const scheduleResumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isSchedulePausedRef = useRef(false);
 
   // Smooth teleprompter auto-scroll for all published victories
   useEffect(() => {
@@ -339,11 +402,72 @@ const ScoresView: React.FC<ScoresViewProps> = ({
     };
   }, [isAutoScrollVictories, isVictoriesHovered, recentResults.length]);
 
+  // Smooth teleprompter auto-scroll for schedule events
+  useEffect(() => {
+    if (!isAutoScrollSchedule || isScheduleHovered) return;
+
+    const container = scheduleScrollRef.current;
+    if (!container) return;
+
+    let lastTime = performance.now();
+    const SCROLL_SPEED = 24; // px per second
+
+    const step = (nowTime: number) => {
+      if (!container || !isAutoScrollSchedule || isScheduleHovered || isSchedulePausedRef.current) {
+        scheduleScrollTimerRef.current = requestAnimationFrame(step);
+        return;
+      }
+
+      const delta = (nowTime - lastTime) / 1000;
+      lastTime = nowTime;
+
+      const maxScroll = container.scrollHeight - container.clientHeight;
+      if (maxScroll <= 15) {
+        scheduleScrollTimerRef.current = requestAnimationFrame(step);
+        return;
+      }
+
+      if (container.scrollTop >= maxScroll - 4) {
+        // Reached bottom: Pause for 4s then smooth scroll to top
+        isSchedulePausedRef.current = true;
+        setTimeout(() => {
+          if (container) {
+            container.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+              isSchedulePausedRef.current = false;
+              lastTime = performance.now();
+            }, 2000);
+          } else {
+            isSchedulePausedRef.current = false;
+          }
+        }, 4000);
+      } else {
+        container.scrollTop += SCROLL_SPEED * delta;
+      }
+
+      scheduleScrollTimerRef.current = requestAnimationFrame(step);
+    };
+
+    scheduleScrollTimerRef.current = requestAnimationFrame(step);
+
+    return () => {
+      if (scheduleScrollTimerRef.current) cancelAnimationFrame(scheduleScrollTimerRef.current);
+    };
+  }, [isAutoScrollSchedule, isScheduleHovered, scheduleEvents.length]);
+
   const handleVictoriesInteraction = () => {
     setIsVictoriesHovered(true);
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
     resumeTimerRef.current = setTimeout(() => {
       setIsVictoriesHovered(false);
+    }, 4500);
+  };
+
+  const handleScheduleInteraction = () => {
+    setIsScheduleHovered(true);
+    if (scheduleResumeTimerRef.current) clearTimeout(scheduleResumeTimerRef.current);
+    scheduleResumeTimerRef.current = setTimeout(() => {
+      setIsScheduleHovered(false);
     }, 4500);
   };
 
@@ -567,7 +691,7 @@ const ScoresView: React.FC<ScoresViewProps> = ({
           </div>
         </div>
 
-        {/* RIGHT — 4 cols: Big Champion Spotlight + Standings Table + Points Share (Full Height) */}
+        {/* RIGHT — 4 cols: Big Champion Spotlight + Upcoming Schedule Feed + Points Share (Full Height) */}
         <div className="col-span-12 lg:col-span-4 flex flex-col gap-4 overflow-hidden min-h-0">
 
           {/* Large Current Champion Spotlight */}
@@ -611,85 +735,164 @@ const ScoresView: React.FC<ScoresViewProps> = ({
             </div>
           </div>
 
-          {/* House Leaderboard Table - Shows ALL 4 Houses Clearly */}
+          {/* Live / Upcoming Schedule Board (Replaces Redundant Overall Standings Table) */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 bg-slate-50/90 flex-shrink-0">
+            {/* Schedule Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50/90 flex-shrink-0">
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-blue-600" />
-                <span className="font-black text-sm text-slate-900 uppercase tracking-wider">
-                  Overall Standings
-                </span>
+                <Calendar className="w-4 h-4 text-blue-600 shrink-0" />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-black text-sm text-slate-900 uppercase tracking-wider truncate">
+                      Upcoming Schedule
+                    </span>
+                    <span className="text-[10px] font-extrabold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full shrink-0">
+                      {activeDay.split(' — ')[0]}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <span className="text-xs font-bold text-slate-500">Official Ranks</span>
+
+              {/* Auto-Scroll Toggle Button */}
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setIsAutoScrollSchedule((v) => !v)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-extrabold transition-all cursor-pointer border ${
+                    isAutoScrollSchedule
+                      ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 shadow-xs'
+                      : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+                  }`}
+                  title="Toggle automatic scrolling for schedule"
+                >
+                  {isAutoScrollSchedule ? (
+                    <>
+                      <Eye className="w-3 h-3 text-blue-600" />
+                      <span>Auto-Scroll: <strong className="text-blue-700">ON</strong></span>
+                    </>
+                  ) : (
+                    <>
+                      <Pause className="w-3 h-3 text-slate-500" />
+                      <span>Auto-Scroll: <strong>PAUSED</strong></span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
-            <div className="p-3 flex-1 flex flex-col justify-around">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="text-[11px] text-slate-500 font-black uppercase border-b border-slate-100">
-                    <th className="px-3 py-2">Rank</th>
-                    <th className="py-2">House</th>
-                    <th className="text-right py-2 pr-4">Points</th>
-                    <th className="text-center py-2">1st</th>
-                    <th className="text-center py-2">2nd</th>
-                    <th className="text-center py-2 pr-2">3rd</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {standings.map((house, index) => {
-                    const houseId = house.id as HouseId;
-                    const colorInfo = houseColors[houseId];
-                    const rankBg = [
-                      'bg-amber-500 text-white',
-                      'bg-slate-400 text-white',
-                      'bg-amber-700 text-white',
-                      'bg-slate-600 text-white',
-                    ][index];
+            {/* Scrollable Container with Continuous Auto-Scroll */}
+            <div
+              ref={scheduleScrollRef}
+              onMouseEnter={handleScheduleInteraction}
+              onMouseMove={handleScheduleInteraction}
+              onTouchStart={handleScheduleInteraction}
+              onWheel={handleScheduleInteraction}
+              className="flex-1 overflow-y-auto p-3.5 space-y-2.5 min-h-0 scroll-smooth"
+            >
+              {scheduleEvents.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400">
+                  <Clock className="w-8 h-8 mb-2 opacity-30 text-blue-500" />
+                  <p className="font-bold text-xs text-slate-600">No events scheduled for {activeDay}.</p>
+                </div>
+              ) : (
+                scheduleEvents.map((ev) => {
+                  const isLive = ev.liveStatus === 'live';
+                  const isNext = ev.liveStatus === 'next';
+                  const isDone = ev.liveStatus === 'done';
+                  const catStyle = getCatStyle(ev.category);
 
-                    return (
-                      <tr key={house.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-3 py-2.5">
-                          <div
-                            className={`w-6 h-6 rounded-md flex items-center justify-center font-black text-xs ${rankBg}`}
+                  return (
+                    <div
+                      key={ev.id}
+                      className={`p-3 rounded-xl border transition-all flex flex-col gap-1.5 ${
+                        isLive
+                          ? 'bg-red-50/90 border-2 border-red-400 shadow-sm ring-1 ring-red-200'
+                          : isNext
+                          ? 'bg-blue-50/80 border border-blue-300 shadow-xs'
+                          : isDone
+                          ? 'bg-slate-50/50 border border-slate-100 opacity-60'
+                          : 'bg-slate-50 hover:bg-slate-100/80 border-slate-200 shadow-xs'
+                      }`}
+                    >
+                      {/* Top row: Time + Stage + Live/Next Badge */}
+                      <div className="flex items-center justify-between gap-1.5">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span
+                            className={`text-xs font-black tabular-nums tracking-tight px-2 py-0.5 rounded-md ${
+                              isLive
+                                ? 'bg-red-600 text-white'
+                                : isNext
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-slate-200 text-slate-800'
+                            }`}
                           >
-                            {index + 1}
-                          </div>
-                        </td>
-                        <td className="py-2.5">
-                          <div className="flex items-center gap-2.5">
-                            <img
-                              src={houseEmblems[houseId]}
-                              alt={house.name}
-                              className="w-6 h-6 object-contain"
-                            />
-                            <span className="font-black text-sm md:text-base text-slate-900">{house.name}</span>
-                          </div>
-                        </td>
-                        <td
-                          className="py-2.5 text-right font-black text-base md:text-lg pr-4 tabular-nums"
-                          style={{ color: colorInfo.primary }}
-                        >
-                          {house.points}
-                        </td>
-                        <td className="py-2.5 text-center text-sm md:text-base text-slate-900 font-bold">
-                          {house.medals.gold}
-                        </td>
-                        <td className="py-2.5 text-center text-sm md:text-base text-slate-500 font-medium">
-                          {house.medals.silver}
-                        </td>
-                        <td className="py-2.5 text-center text-sm md:text-base text-slate-500 pr-2 font-medium">
-                          {house.medals.bronze}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                            {ev.time}
+                          </span>
+                          <span className="text-[11px] text-slate-500 font-bold truncate flex items-center gap-1">
+                            <MapPin className="w-2.5 h-2.5 text-amber-500 shrink-0" />
+                            {ev.stage ? ev.stage.replace(/^Stage \d+:\s*/, '') : 'Main Stage'}
+                          </span>
+                        </div>
+
+                        <div className="shrink-0">
+                          {isLive && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200 text-[9px] font-black uppercase tracking-wider">
+                              <Radio className="w-2.5 h-2.5 text-red-600 animate-pulse" /> LIVE NOW
+                            </span>
+                          )}
+                          {isNext && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200 text-[9px] font-black uppercase tracking-wider">
+                              UP NEXT
+                            </span>
+                          )}
+                          {isDone && (
+                            <span className="text-[9px] font-bold text-emerald-600 uppercase bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                              DONE
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Middle row: Event Title */}
+                      <div className="font-bold text-xs text-slate-900 leading-snug line-clamp-2">
+                        {ev.title}
+                      </div>
+
+                      {/* Bottom row: Category pill + Coordinator / Participants */}
+                      <div className="flex items-center justify-between gap-2 text-[10px] text-slate-500 pt-1 border-t border-slate-200/60">
+                        <span className={`px-2 py-0.5 rounded-full font-bold border ${catStyle.pill}`}>
+                          {ev.category}
+                        </span>
+
+                        {(ev.coordinator || ev.participants) && (
+                          <span className="truncate max-w-[160px] text-slate-500 font-medium">
+                            {ev.coordinator ? `Coord: ${ev.coordinator}` : `${ev.participants} participants`}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+
+              {scheduleEvents.length > 0 && (
+                <div className="pt-2 pb-1 text-center flex items-center justify-center gap-1.5 text-[11px] font-bold text-slate-400">
+                  <RefreshCw className="w-3 h-3 animate-spin opacity-50" />
+                  <span>Auto-scrolling {scheduleEvents.length} scheduled events</span>
+                </div>
+              )}
             </div>
 
-            <div className="px-4 py-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 flex-shrink-0">
-              <span>Verified by Scoring Committee</span>
-              <span>{currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+            {/* Bottom Status bar for Schedule */}
+            <div className="px-4 py-2 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between text-[10px] text-slate-500 flex-shrink-0">
+              <span className="font-semibold">{scheduleEvents.length} Total Events Today</span>
+              {onViewSchedule && (
+                <button
+                  onClick={onViewSchedule}
+                  className="font-bold text-blue-600 hover:text-blue-800 cursor-pointer flex items-center gap-0.5 hover:underline"
+                >
+                  Full Schedule View <ChevronRight className="w-3 h-3" />
+                </button>
+              )}
             </div>
           </div>
 

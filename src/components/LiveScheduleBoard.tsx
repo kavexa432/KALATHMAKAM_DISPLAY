@@ -81,7 +81,7 @@ const CAT_COLORS: Record<string, { dot: string; pill: string; text: string; bord
   'Fine Arts':  { dot: 'bg-teal-600',    pill: 'bg-teal-50 text-teal-800 border-teal-200',       text: 'text-teal-800',    border: 'border-teal-300' },
 };
 
-function getCatStyle(c: string) {
+export function getCatStyle(c: string) {
   return CAT_COLORS[c] ?? {
     dot: 'bg-slate-400',
     pill: 'bg-slate-100 text-slate-700 border-slate-200',
