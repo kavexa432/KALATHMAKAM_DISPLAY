@@ -5,6 +5,7 @@ import { houseColors } from '../../../shared/tokens/designTokens';
 import type { HouseId } from '../../../shared/types/festivalTypes';
 import { formatTime12Hour } from '../../../utils/timeUtils';
 import { cleanVenueName } from '../../../utils/venueUtils';
+import { rankByPoints } from '../../../shared/utils/ranking';
 
 export const FestivalControlCenter: React.FC = () => {
   const { events, houses, getHousePoints, liveFeed } = useFestival();
@@ -24,13 +25,13 @@ export const FestivalControlCenter: React.FC = () => {
 
   const latestNotice = liveFeed[0];
 
-  // Computed House Standings
-  const standings = houses
-    .map((h) => ({
-      ...h,
-      points: getHousePoints(h.id),
-    }))
-    .sort((a, b) => b.points - a.points);
+  // Computed House Standings with Ties
+  const rawStandings = houses.map((h) => ({
+    ...h,
+    points: getHousePoints(h.id),
+  }));
+
+  const standings = rankByPoints(rawStandings);
 
   // Don't render a mostly-empty widget if no events are loaded yet
   if (events.length === 0) return null;
@@ -120,9 +121,9 @@ export const FestivalControlCenter: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                {standings.map((h, index) => {
+                {standings.map((h) => {
                   const info = houseColors[h.id as HouseId];
-                  const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '⭐';
+                  const medal = h.rank === 1 ? '🥇' : h.rank === 2 ? '🥈' : h.rank === 3 ? '🥉' : '⭐';
 
                   return (
                     <div

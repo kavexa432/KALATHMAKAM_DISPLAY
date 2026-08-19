@@ -3,6 +3,7 @@ import { Trophy, Clock, Wifi, WifiOff, MapPin } from 'lucide-react';
 import { useFestival } from '../shared/context/FestivalContext';
 import { houseColors } from '../shared/tokens/designTokens';
 import type { HouseId } from '../shared/types/festivalTypes';
+import { rankByPoints } from '../shared/utils/ranking';
 
 // Official House Emblem Images
 import vegaEmblem from '../assets/houses/vega.png';
@@ -31,7 +32,7 @@ export const DisplayDashboard: React.FC = () => {
   const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
   const [categoryFilter, setCategoryFilter] = useState(0);
 
-  const categories = ['All', 'Music', 'Dance', 'Literary', 'Fine Arts'];
+  const categories = ['ALL', 'LITERARY', 'MUSIC', 'DANCE', 'FINE ARTS'];
 
   // Update clock every second
   useEffect(() => {
@@ -57,28 +58,28 @@ export const DisplayDashboard: React.FC = () => {
     return () => clearInterval(categoryTimer);
   }, [categories.length]);
 
-  // Calculate standings
-  const standings = houses
-    .map((h) => {
-      const houseId = h.id as HouseId;
-      const pts = getHousePoints(houseId);
-      const medals = getHouseMedals(houseId);
-      
-      const houseResults = results.filter((r) => r.houseId === houseId && r.status === 'Published');
-      const todayDelta = houseResults.slice(0, 5).reduce((sum, r) => sum + r.points, 0);
-      
-      return {
-        ...h,
-        points: pts,
-        medals,
-        todayDelta,
-        totalParticipants: 65, // This should come from Firebase
-      };
-    })
-    .sort((a, b) => b.points - a.points);
+  // Calculate standings with tie handling
+  const rawStandings = houses.map((h) => {
+    const houseId = h.id as HouseId;
+    const pts = getHousePoints(houseId);
+    const medals = getHouseMedals(houseId);
+    
+    const houseResults = results.filter((r) => r.houseId === houseId && r.status === 'Published');
+    const todayDelta = houseResults.slice(0, 5).reduce((sum, r) => sum + r.points, 0);
+    
+    return {
+      ...h,
+      points: pts,
+      medals,
+      todayDelta,
+      totalParticipants: 65, // This should come from Firebase
+    };
+  });
+
+  const standings = rankByPoints(rawStandings);
 
   const leaderHouse = standings[0];
-  const secondHouse = standings[1];
+  const secondHouse = standings.find((h) => h.rank > 1) ?? standings[1];
   const leadDifference = leaderHouse?.points - (secondHouse?.points || 0);
 
   // Recent results for activity feed
@@ -200,17 +201,18 @@ export const DisplayDashboard: React.FC = () => {
           
           {/* House Cards Grid */}
           <div className="grid grid-cols-4 gap-6">
-            {standings.map((house, index) => {
+            {standings.map((house) => {
               const houseId = house.id as HouseId;
               const colorInfo = houseColors[houseId];
-              const isLeader = index === 0;
+              const isLeader = house.isLeader;
               
               const rankBadges = [
-                { text: 'RANK #1', bg: 'bg-[#F59E0B] text-white', icon: '👑' },
-                { text: 'RANK #2', bg: 'bg-slate-200 text-slate-800', icon: '🥈' },
-                { text: 'RANK #3', bg: 'bg-amber-200 text-amber-800', icon: '🥉' },
-                { text: 'RANK #4', bg: 'bg-slate-100 text-slate-600', icon: '4️⃣' },
+                { bg: 'bg-[#F59E0B] text-white', icon: '👑' },
+                { bg: 'bg-slate-200 text-slate-800', icon: '🥈' },
+                { bg: 'bg-amber-200 text-amber-800', icon: '🥉' },
+                { bg: 'bg-slate-100 text-slate-600', icon: '4️⃣' },
               ];
+              const badgeStyle = rankBadges[(house.rank ?? 1) - 1] || rankBadges[3];
 
               return (
                 <div
@@ -232,9 +234,9 @@ export const DisplayDashboard: React.FC = () => {
                   )}
 
                   {/* Rank Badge */}
-                  <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold mb-4 ${rankBadges[index].bg}`}>
-                    <span>{rankBadges[index].icon}</span>
-                    <span>{rankBadges[index].text}</span>
+                  <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold mb-4 ${badgeStyle.bg}`}>
+                    <span>{badgeStyle.icon}</span>
+                    <span>{house.rankBadgeText}</span>
                   </div>
 
                   {/* House Identity */}

@@ -19,38 +19,42 @@ const houseEmblems: Record<HouseId, string> = {
   NONE: '',
 };
 
+import { rankByPoints } from '../../../shared/utils/ranking';
+
 export const LeaderboardSection: React.FC = () => {
   const { houses, getHousePoints, getHouseMedals, results } = useFestival();
   const [selectedHouse, setSelectedHouse] = useState<HouseId | null>(null);
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>('All');
   const [showPointSystemModal, setShowPointSystemModal] = useState(false);
 
-  // Compute Live House Standings dynamically from Firebase Results (sorted highest to lowest)
-  const standings = houses
-    .map((h) => {
-      const houseId = h.id as HouseId;
-      const pts = getHousePoints(houseId);
-      const medals = getHouseMedals(houseId);
-      
-      // Calculate recent points delta & wins for this house from results
-      const houseResults = results.filter((r) => r.houseId === houseId && r.status === 'Published');
-      const recentDelta = houseResults.slice(0, 3).reduce((sum, r) => sum + r.points, 0);
-      const totalWins = houseResults.length;
-      const latestWin = houseResults.length > 0 ? houseResults[0].eventTitle : 'None yet';
+  // Compute Live House Standings dynamically from Firebase Results with Tie Support
+  const rawStandings = houses.map((h) => {
+    const houseId = h.id as HouseId;
+    const pts = getHousePoints(houseId);
+    const medals = getHouseMedals(houseId);
+    
+    // Calculate recent points delta & wins for this house from results
+    const houseResults = results.filter((r) => r.houseId === houseId && r.status === 'Published');
+    const recentDelta = houseResults.slice(0, 3).reduce((sum, r) => sum + r.points, 0);
+    const totalWins = houseResults.length;
+    const latestWin = houseResults.length > 0 ? houseResults[0].eventTitle : 'None yet';
 
-      return {
-        ...h,
-        points: pts,
-        medals,
-        totalWins,
-        latestWin,
-        recentDelta,
-      };
-    })
-    .sort((a, b) => b.points - a.points);
+    return {
+      ...h,
+      points: pts,
+      medals,
+      totalWins,
+      latestWin,
+      recentDelta,
+    };
+  });
 
+  const standings = rankByPoints(rawStandings);
+
+  const leaders = standings.filter((h) => h.rank === 1);
+  const isLeaderTie = leaders.length > 1;
   const leaderHouse = standings[0];
-  const secondHouse = standings[1];
+  const secondHouse = standings.find((h) => h.rank > 1) ?? standings[1];
   const leadPointsDiff = leaderHouse.points - (secondHouse ? secondHouse.points : 0);
   const maxPoints = Math.max(...standings.map((s) => s.points), 1);
 
@@ -222,26 +226,36 @@ export const LeaderboardSection: React.FC = () => {
                 <Trophy className="w-24 h-24 text-[#F59E0B]" />
               </div>
 
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#F59E0B] to-[#FFA033] p-0.5 shrink-0 shadow-md">
-                <div className="w-full h-full bg-[#111111] rounded-[10px] flex items-center justify-center">
-                  <img
-                    src={houseEmblems[leaderHouse.id as HouseId]}
-                    alt={leaderHouse.name}
-                    className="w-8 h-8 object-contain"
-                  />
-                </div>
+              <div className="flex items-center -space-x-2 shrink-0">
+                {leaders.slice(0, 2).map((l) => (
+                  <div key={l.id} className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#F59E0B] to-[#FFA033] p-0.5 shrink-0 shadow-md">
+                    <div className="w-full h-full bg-[#111111] rounded-[10px] flex items-center justify-center">
+                      <img
+                        src={houseEmblems[l.id as HouseId]}
+                        alt={l.name}
+                        className="w-8 h-8 object-contain"
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <div className="space-y-0.5">
                 <div className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-[#F59E0B]">
                   <Crown className="w-3.5 h-3.5" />
-                  <span>CURRENT CHAMPION</span>
+                  <span>{isLeaderTie ? 'CO-CHAMPIONS (TIED)' : 'CURRENT CHAMPION'}</span>
                 </div>
                 <h4 className="font-sans-manrope font-black text-lg text-white">
-                  HOUSE {leaderHouse.name} • {leaderHouse.points} PTS
+                  {isLeaderTie
+                    ? `HOUSES ${leaders.map((l) => l.name).join(' & ')} • ${leaders[0]?.points ?? 0} PTS`
+                    : `HOUSE ${leaderHouse?.name ?? ''} • ${leaderHouse?.points ?? 0} PTS`}
                 </h4>
                 <p className="font-sans-manrope text-[11px] text-white/70">
-                  {leadPointsDiff > 0 ? `Leading by +${leadPointsDiff} PTS ahead of 2nd place` : 'Tied for 1st place'}
+                  {isLeaderTie
+                    ? `Tied for 1st place (${leaders.length} houses equal on points)`
+                    : leadPointsDiff > 0
+                    ? `Leading by +${leadPointsDiff} PTS ahead of 2nd place`
+                    : 'Tied for 1st place'}
                 </p>
               </div>
             </div>
@@ -251,18 +265,18 @@ export const LeaderboardSection: React.FC = () => {
 
         {/* Dynamic Top 4 House Cards Row (Compact 260px Height, Left-Aligned, Rich Info) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
-          {standings.map((h, index) => {
+          {standings.map((h) => {
             const houseId = h.id as HouseId;
             const colorInfo = houseColors[houseId];
-            const isFirstRank = index === 0;
+            const isFirstRank = h.rank === 1;
 
-            const rankBadge = index === 0
-              ? { text: 'Rank #1', bg: 'bg-[#F59E0B]', textColor: 'text-white' }
-              : index === 1
-              ? { text: 'Rank #2', bg: 'bg-slate-100', textColor: 'text-slate-700' }
-              : index === 2
-              ? { text: 'Rank #3', bg: 'bg-amber-100', textColor: 'text-amber-800' }
-              : { text: 'Rank #4', bg: 'bg-slate-100', textColor: 'text-slate-600' };
+            const rankBadge = h.rank === 1
+              ? { text: h.isTied ? 'Rank #1 (Tied)' : 'Rank #1', bg: 'bg-[#F59E0B]', textColor: 'text-white' }
+              : h.rank === 2
+              ? { text: h.isTied ? 'Rank #2 (Tied)' : 'Rank #2', bg: 'bg-slate-100', textColor: 'text-slate-700' }
+              : h.rank === 3
+              ? { text: h.isTied ? 'Rank #3 (Tied)' : 'Rank #3', bg: 'bg-amber-100', textColor: 'text-amber-800' }
+              : { text: h.isTied ? 'Rank #4 (Tied)' : 'Rank #4', bg: 'bg-slate-100', textColor: 'text-slate-600' };
 
             return (
               <div
@@ -278,7 +292,7 @@ export const LeaderboardSection: React.FC = () => {
                   borderTopColor: colorInfo.primary,
                 }}
               >
-                {/* Crown Icon on Top Edge for 1st Rank Leader */}
+                {/* Crown Icon on Top Edge for 1st Rank Leader(s) */}
                 {isFirstRank && (
                   <div className="absolute -top-3 left-6 bg-[#F59E0B] text-white p-1 rounded-full shadow-xs">
                     <Crown className="w-3.5 h-3.5" />

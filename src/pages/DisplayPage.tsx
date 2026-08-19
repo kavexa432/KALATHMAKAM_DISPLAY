@@ -17,6 +17,7 @@ import { houseColors } from '../shared/tokens/designTokens';
 import type { HouseId } from '../shared/types/festivalTypes';
 import { LiveScheduleBoard, resolveDefaultDay, getCatStyle } from '../components/LiveScheduleBoard';
 import { DAY_DATE_MAP, ALL_SCHEDULE_DATA } from '../data/scheduleData';
+import { rankByPoints } from '../shared/utils/ranking';
 
 import vegaEmblem  from '../assets/houses/vega.png';
 import novaEmblem  from '../assets/houses/nova.png';
@@ -48,22 +49,23 @@ export const DisplayPage: React.FC = () => {
   const formatDate = (d: Date) =>
     d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
 
-  // Standings calculation
+  // Standings calculation with shared / tied rank support
   const standings = useMemo(() => {
-    return houses
-      .map((h) => {
-        const houseId = h.id as HouseId;
-        const pts = getHousePoints(houseId);
-        const medals = getHouseMedals(houseId);
-        const houseResults = results.filter((r) => r.houseId === houseId && r.status === 'Published');
-        const recentDelta = houseResults.slice(0, 3).reduce((sum, r) => sum + r.points, 0);
-        return { ...h, points: pts, medals, recentDelta };
-      })
-      .sort((a, b) => b.points - a.points);
+    const raw = houses.map((h) => {
+      const houseId = h.id as HouseId;
+      const pts = getHousePoints(houseId);
+      const medals = getHouseMedals(houseId);
+      const houseResults = results.filter((r) => r.houseId === houseId && r.status === 'Published');
+      const recentDelta = houseResults.slice(0, 3).reduce((sum, r) => sum + r.points, 0);
+      return { ...h, points: pts, medals, recentDelta };
+    });
+    return rankByPoints(raw);
   }, [houses, getHousePoints, getHouseMedals, results]);
 
+  const leaders = useMemo(() => standings.filter((h) => h.rank === 1), [standings]);
+  const isLeaderTie = leaders.length > 1;
   const leaderHouse = standings[0];
-  const secondHouse = standings[1];
+  const secondHouse = standings.find((h) => h.rank > 1) ?? standings[1];
   const leadDiff = leaderHouse ? leaderHouse.points - (secondHouse?.points ?? 0) : 0;
 
   // Festival date check
@@ -81,13 +83,19 @@ export const DisplayPage: React.FC = () => {
   // Live Marquee Ticker items
   const tickerItems = useMemo(() => {
     const pubCount = results.filter((r) => r.status === 'Published').length;
+    const leaderBannerText = isLeaderTie
+      ? `CO-LEADERS (TIED): ${leaders.map((l) => l.name).join(' & ')} (${leaders[0]?.points ?? 0} PTS)`
+      : leaderHouse
+      ? `CURRENT LEADER: ${leaderHouse.name} (${leaderHouse.points} PTS)`
+      : `KALATHMAKAM 2K26 IN FULL SWING`;
+
     if (isConcluded) {
       return [
         `DAY 1 CONCLUDED • DAY 2 COMPETITIONS BEGIN TOMORROW AT 09:00 AM`,
         `STAGE 1 (KALAKELI AUDITORIUM): WELCOME DANCE AT 09:00 AM & ARABIC DANCE AT 09:05 AM`,
         `HOUSE-WISE COMPETITIONS: FOLK DANCE (STD III), THEMATIC DANCE (STD IV), THIRUVATHIRA, OPPANA & FUSION DANCE`,
         `4 HOUSES COMPETING: ASTRA • NOVA • ORION • VEGA`,
-        leaderHouse ? `CURRENT LEADER: ${leaderHouse.name} (${leaderHouse.points} PTS)` : `KALATHMAKAM 2K26 IN FULL SWING`,
+        leaderBannerText,
         `${pubCount > 0 ? pubCount : 349} RESULTS PUBLISHED`,
         `OFFICIAL KALATHMAKAM 2K26 LIVE DISPLAY`,
       ];
@@ -96,11 +104,11 @@ export const DisplayPage: React.FC = () => {
       `${pubCount > 0 ? pubCount : 349} RESULTS PUBLISHED`,
       `4 HOUSES COMPETING (ASTRA • NOVA • ORION • VEGA)`,
       `STAGE 1 KALAKELI AUDITORIUM ACTIVE`,
-      leaderHouse ? `CURRENT LEADER: ${leaderHouse.name} (${leaderHouse.points} PTS)` : `KALATHMAKAM 2K26 IN FULL SWING`,
+      leaderBannerText,
       `65+ TALENTED CONTESTANTS`,
       `OFFICIAL SCORING & LIVE BROADCAST ACTIVE`,
     ];
-  }, [leaderHouse, results, isConcluded]);
+  }, [leaderHouse, leaders, isLeaderTie, results, isConcluded]);
 
   // All published / verified results for scores feed
   const recentResults = useMemo(() => {
@@ -484,17 +492,17 @@ const ScoresView: React.FC<ScoresViewProps> = ({
 
           {/* 4 Large House Point Cards with Uncut Prominent House Names */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 flex-shrink-0">
-            {standings.map((house, index) => {
+            {standings.map((house) => {
               const houseId = house.id as HouseId;
               const colorInfo = houseColors[houseId];
-              const isLeader = index === 0;
-              const rankBadges = [
-                'bg-amber-500 text-white',
-                'bg-slate-400 text-white',
-                'bg-amber-700 text-white',
-                'bg-slate-600 text-white',
+              const isLeader = house.isLeader;
+              const rankBadgeStyles = [
+                'bg-amber-500 text-white', // 1st
+                'bg-slate-400 text-white', // 2nd
+                'bg-amber-700 text-white', // 3rd
+                'bg-slate-600 text-white', // 4th
               ];
-              const rankLabels = ['1ST PLACE', '2ND PLACE', '3RD PLACE', '4TH PLACE'];
+              const badgeStyle = rankBadgeStyles[(house.rank ?? 1) - 1] || 'bg-slate-600 text-white';
 
               return (
                 <div
@@ -509,9 +517,9 @@ const ScoresView: React.FC<ScoresViewProps> = ({
                     {/* Top Row: Rank Badge on Left + Live Delta on Right */}
                     <div className="flex items-center justify-between gap-1 mb-2.5">
                       <span
-                        className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${rankBadges[index]}`}
+                        className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${badgeStyle}`}
                       >
-                        {rankLabels[index]}
+                        {house.rankLabel || (isLeader ? '1ST PLACE' : 'RANK')}
                       </span>
                       <span className="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                         +{house.recentDelta} pts

@@ -50,7 +50,17 @@ export const HouseDetailModal: React.FC<HouseDetailModalProps> = ({ houseId, onC
   // House specific verified results
   const houseResults = results.filter((r) => r.houseId === houseId && r.status === 'Published');
 
-  const rankBadge = rank === 1 ? '🥇 1st Rank' : rank === 2 ? '🥈 2nd Rank' : rank === 3 ? '🥉 3rd Rank' : '⭐ 4th Rank';
+  const isTied = houses.some((h) => h.id !== houseId && getHousePoints(h.id) === points);
+  const rankSuffix = rank === 1 ? '1st' : rank === 2 ? '2nd' : rank === 3 ? '3rd' : `${rank}th`;
+  const rankBadge = isTied
+    ? `🤝 Shared ${rankSuffix} Rank`
+    : rank === 1
+    ? '🥇 1st Rank'
+    : rank === 2
+    ? '🥈 2nd Rank'
+    : rank === 3
+    ? '🥉 3rd Rank'
+    : '⭐ 4th Rank';
 
   return (
     <div
