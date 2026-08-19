@@ -1,12 +1,13 @@
 /**
- * Helper to compute competition standings with proper tie handling (standard competition ranking: 1, 1, 3, 4).
- * If two or more houses have identical points, they share the same rank and position.
+ * Helper to compute competition standings with dense tie handling (dense ranking: 1, 2, 2, 3).
+ * If two or more houses have identical points, they share the same rank and position (e.g. Shared 2nd),
+ * and the next house takes the subsequent position (3rd Place, not 4th).
  */
 
 export interface RankedHouseFields {
   rank: number;
   isTied: boolean;
-  rankLabel: string;      // e.g. "SHARED 1ST", "1ST PLACE", "2ND PLACE", "SHARED 2ND"
+  rankLabel: string;      // e.g. "SHARED 1ST", "1ST PLACE", "SHARED 2ND", "3RD PLACE"
   rankBadgeText: string;  // e.g. "Rank #1 (Tied)", "Rank #1", "Rank #2"
   positionSuffix: string; // e.g. "1st", "2nd", "3rd", "4th"
   isLeader: boolean;      // true if rank === 1
@@ -20,7 +21,7 @@ export function rankByPoints<T extends { points: number }>(
 
   return sorted.map((item, index, arr) => {
     if (index > 0 && item.points < arr[index - 1].points) {
-      currentRank = index + 1; // Standard competition ranking: 1, 1, 3, 4
+      currentRank += 1; // Dense ranking: 1, 2, 2 -> 3rd Place
     }
 
     const tiedCount = arr.filter((x) => x.points === item.points).length;

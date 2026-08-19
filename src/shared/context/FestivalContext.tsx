@@ -706,8 +706,10 @@ export const FestivalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const getHouseRank = (houseId: HouseId): number => {
     const targetPoints = getHousePoints(houseId);
-    const higherHouses = houses.filter((h) => getHousePoints(h.id) > targetPoints);
-    return higherHouses.length + 1;
+    const distinctHigher = new Set(
+      houses.map((h) => getHousePoints(h.id)).filter((pts) => pts > targetPoints)
+    );
+    return distinctHigher.size + 1;
   };
 
   // Note: signInWithRedirect is NOT used — it causes "missing initial state" errors
